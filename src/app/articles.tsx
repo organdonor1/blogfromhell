@@ -26,14 +26,15 @@ export function Articles() {
   return (
     <section className="container mx-auto px-8 py-20">
       <Typography
-        variant="h2"
         color="blue-gray"
+        className="mx-auto w-full text-[30px] lg:text-[48px] font-bold leading-[45px] lg:leading-[60px] lg:max-w-2xl"
         placeholder=""
         onPointerEnterCapture={() => {}}
         onPointerLeaveCapture={() => {}}
       >
-        Other Articles
+        Other articles.
       </Typography>
+
       <Typography
         variant="lead"
         className="my-2 w-full font-normal !text-gray-500 lg:w-5/12"
