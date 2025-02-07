@@ -1,7 +1,6 @@
 "use client";
 
 import React from "react";
-import { Typography } from "@material-tailwind/react";
 import ArticleCard from "@/components/article-card";
 
 const ARTICLES = [
@@ -25,25 +24,13 @@ const ARTICLES = [
 export function Articles() {
   return (
     <section className="container mx-auto px-8 py-20">
-      <Typography
-        color="blue-gray"
-        className="mx-auto w-full text-[30px] lg:text-[48px] font-bold leading-[45px] lg:leading-[60px] lg:max-w-2xl"
-        placeholder=""
-        onPointerEnterCapture={() => {}}
-        onPointerLeaveCapture={() => {}}
-      >
+      <h1 className="mx-auto w-full text-[30px] lg:text-[48px] font-bold leading-[45px] lg:leading-[60px] lg:max-w-2xl">
         Other articles.
-      </Typography>
+      </h1>
 
-      <Typography
-        variant="lead"
-        className="my-2 w-full font-normal !text-gray-500 lg:w-5/12"
-        placeholder=""
-        onPointerEnterCapture={() => {}}
-        onPointerLeaveCapture={() => {}}
-      >
+      <p className="my-2 w-full font-normal !text-gray-500 lg:w-5/12">
         Check out what&apos;s new in the web development and tech world! Do not forget to subscribe to our blog and we will notify you with the latest news.
-      </Typography>
+      </p>
 
       <div className="mt-8 grid grid-cols-1 gap-6 lg:grid-cols-3">
         {ARTICLES.map((props, idx) => (
