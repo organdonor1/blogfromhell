@@ -13,15 +13,14 @@ function Hero() {
         color="blue-gray"
         className="mx-auto w-full text-[30px] lg:text-[48px] font-bold leading-[45px] lg:leading-[60px] lg:max-w-2xl"
       >
-        Web Development Blog @ Material Tailwind
+        Blog from Hell
       </Typography>
       {/* @ts-expect-error - Material Tailwind Typography type issue */}
       <Typography
         variant="lead"
         className="mx-auto mt-8 mb-4 w-full px-8 !text-gray-700 lg:w-10/12 lg:px-12 xl:w-8/12 xl:px-20"
       >
-        Expand your web development knowledge with our tutorials and
-        learning articles.
+        Discover the latest news and explore captivating fiction stories.
       </Typography>
       <div className="grid place-items-start justify-center gap-2">
         <div className="mt-8 flex flex-col items-center justify-center gap-4 md:flex-row">
