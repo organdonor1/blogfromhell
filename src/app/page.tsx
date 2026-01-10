@@ -25,15 +25,26 @@ export default function Index() {
   useEffect(() => {
     const fetchPosts = async () => {
       setIsLoading(true);
-      const { data } = await supabase
-        .from('posts')
-        .select('*')
-        .eq('type', activeTab)
-        .eq('published', true)
-        .order('created_at', { ascending: false });
-      
-      setPosts(data || []);
-      setIsLoading(false);
+      try {
+        const { data, error } = await supabase
+          .from('posts')
+          .select('*')
+          .eq('type', activeTab)
+          .eq('published', true)
+          .order('created_at', { ascending: false });
+        
+        if (error) {
+          console.error('Error fetching posts:', error);
+          setPosts([]);
+        } else {
+          setPosts(data || []);
+        }
+      } catch (error) {
+        console.error('Error fetching posts:', error);
+        setPosts([]);
+      } finally {
+        setIsLoading(false);
+      }
     };
 
     fetchPosts();
