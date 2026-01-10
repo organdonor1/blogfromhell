@@ -77,7 +77,7 @@ export default function PostDetail() {
     <div className="min-h-screen flex flex-col bg-background">
       <Header />
       
-      <main className="flex-1 container max-w-3xl mx-auto px-6 py-10">
+      <main className="flex-1 container max-w-3xl mx-auto px-6 py-10 mb-auto">
         <Link 
           href="/" 
           className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors mb-8 group"
@@ -114,7 +114,9 @@ export default function PostDetail() {
         </article>
       </main>
       
-      <Footer />
+      <div className="mt-auto">
+        <Footer />
+      </div>
     </div>
   );
 }

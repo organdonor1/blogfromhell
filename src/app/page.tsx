@@ -78,7 +78,9 @@ export default function Index() {
         </div>
       </main>
       
-      <Footer />
+      <div className="mt-auto">
+        <Footer />
+      </div>
     </div>
   );
 }
