@@ -60,16 +60,22 @@ git push
    - Click **"Add"**
    - Vercel will show you DNS configuration instructions
 
-3. **Configure DNS**
-   - Go to your domain registrar (where you manage blogfromhell.com)
-   - Add the DNS records Vercel provides:
-     - **Type**: `A` or `CNAME`
-     - **Name**: `@` (for root domain) or leave blank
-     - **Value**: The value Vercel provides (e.g., `76.76.21.21` or a CNAME)
-   - For `www.blogfromhell.com`, add another record:
-     - **Type**: `CNAME`
-     - **Name**: `www`
-     - **Value**: `cname.vercel-dns.com`
+3. **Configure DNS in Cloudflare**
+   - Go to your Cloudflare Dashboard → Select `blogfromhell.com`
+   - Click on **DNS** in the sidebar
+   - Vercel will provide you with DNS records to add. Typically:
+     - For root domain (`blogfromhell.com`):
+       - **Type**: `CNAME`
+       - **Name**: `@` (or leave blank for root)
+       - **Target**: `cname.vercel-dns.com`
+       - **Proxy status**: Click the orange cloud to turn it **OFF** (gray) - Vercel handles SSL
+     - For `www.blogfromhell.com`:
+       - **Type**: `CNAME`
+       - **Name**: `www`
+       - **Target**: `cname.vercel-dns.com`
+       - **Proxy status**: **OFF** (gray cloud)
+   - **Important**: Turn off Cloudflare's proxy (gray cloud) for Vercel domains, as Vercel handles SSL certificates
+   - Click **Save**
 
 4. **Wait for DNS Propagation**
    - DNS changes can take 5 minutes to 48 hours
@@ -108,9 +114,11 @@ Once set up:
 - Verify Node.js version (Vercel uses Node.js 18.x by default)
 
 ### Domain Not Working
-- Wait for DNS propagation (can take up to 48 hours)
-- Verify DNS records are correct in your domain registrar
+- Wait for DNS propagation (usually 5-15 minutes with Cloudflare)
+- Verify DNS records are correct in Cloudflare dashboard
+- Make sure Cloudflare proxy is **OFF** (gray cloud) for Vercel CNAME records
 - Check domain status in Vercel dashboard
+- If using Cloudflare proxy, you may need to use Cloudflare's "Full" SSL mode
 
 ### Site Shows Old Content
 - Check if the latest deployment succeeded
