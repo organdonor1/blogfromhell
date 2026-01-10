@@ -6,6 +6,7 @@
   "homepage": "https://demos.creative-tim.com/nextjs-tailwind-blog-posts-page",
   "scripts": {
     "dev": "next dev",
+    "preinstall": "npm install --legacy-peer-deps || true",
     "build": "next build",
     "start": "next start",
     "lint": "next lint"
