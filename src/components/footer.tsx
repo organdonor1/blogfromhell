@@ -12,7 +12,7 @@ const Footer = () => {
           <MailingListSignup />
         </div>
         <p className="text-center text-muted-foreground text-sm font-body">
-          © {currentYear} The Quiet Page. All rights reserved.
+          © {currentYear} Hell. All rights reserved.
         </p>
       </div>
     </footer>
