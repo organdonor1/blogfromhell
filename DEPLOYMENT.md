@@ -43,7 +43,7 @@ This guide will walk you through deploying your Next.js blog to Cloudflare Pages
    - **Production branch**: `main` (or `master`)
    - **Framework preset**: `Next.js` (or `Static HTML` since we're using static export)
    - **Build command**: `npm run build`
-   - **Build output directory**: `out` (Next.js static export outputs to `out/` directory)
+   - **Build output directory**: `.next` (Next.js standard build output directory)
    - **Root directory**: `/` (leave as default)
 
 4. **Environment Variables** (if needed)
