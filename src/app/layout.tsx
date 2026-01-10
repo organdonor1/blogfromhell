@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 import { Toaster } from "../components/ui/toaster";
 
 export const metadata: Metadata = {
-  title: "Hell - Stories & Reflections",
+  title: "Hell",
   description: "A blog featuring fiction stories and news articles.",
 };
 

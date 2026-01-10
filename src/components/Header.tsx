@@ -8,9 +8,6 @@ const Header = () => {
           <h1 className="font-heading text-3xl md:text-4xl font-semibold text-foreground tracking-tight group-hover:text-primary transition-colors duration-300">
             Hell
           </h1>
-          <p className="text-muted-foreground text-sm mt-1 font-body italic">
-            Stories & Reflections
-          </p>
         </Link>
       </div>
     </header>
