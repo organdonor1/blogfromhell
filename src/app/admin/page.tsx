@@ -10,7 +10,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '.
 import { Switch } from '../../components/ui/switch';
 import { Label } from '../../components/ui/label';
 import { useToast } from '../../hooks/use-toast';
-import { supabase } from '../../integrations/supabase/client';
 import { ArrowLeft, Plus, Trash2, Edit, Users } from 'lucide-react';
 import Header from '../../components/Header';
 import Footer from '../../components/footer';
@@ -34,6 +33,7 @@ interface Subscriber {
 
 export default function Admin() {
   const [password, setPassword] = useState('');
+  const [adminPassword, setAdminPassword] = useState('');
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [posts, setPosts] = useState<Post[]>([]);
@@ -71,68 +71,93 @@ export default function Admin() {
   };
 
   const loadPosts = async () => {
-    if (!supabase) {
-      toast({ title: "Supabase not configured", variant: "destructive" });
-      return;
-    }
-
     try {
-      const { data, error } = await supabase
-        .from('posts')
-        .select('*')
-        .order('created_at', { ascending: false });
-      
-      if (error) throw error;
-      setPosts(data || []);
-    } catch (error) {
-      toast({ title: "Failed to load posts", variant: "destructive" });
+      const response = await fetch('/api/admin/posts', {
+        headers: {
+          'x-admin-password': adminPassword,
+        },
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || 'Failed to load posts');
+      }
+
+      const { posts: postsData } = await response.json();
+      setPosts(postsData || []);
+    } catch (error: any) {
+      toast({ 
+        title: "Failed to load posts", 
+        description: error.message,
+        variant: "destructive" 
+      });
     }
   };
 
   const loadSubscribers = async () => {
-    if (!supabase) {
-      toast({ title: "Supabase not configured", variant: "destructive" });
-      return;
-    }
-
     try {
-      const { data, error } = await supabase
-        .from('mailing_list_subscribers')
-        .select('*')
-        .order('subscribed_at', { ascending: false });
-      
-      if (error) throw error;
-      setSubscribers(data || []);
+      const response = await fetch('/api/admin/subscribers', {
+        headers: {
+          'x-admin-password': adminPassword,
+        },
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || 'Failed to load subscribers');
+      }
+
+      const { subscribers: subscribersData } = await response.json();
+      setSubscribers(subscribersData || []);
       setShowSubscribers(true);
-    } catch (error) {
-      toast({ title: "Failed to load subscribers", variant: "destructive" });
+    } catch (error: any) {
+      toast({ 
+        title: "Failed to load subscribers", 
+        description: error.message,
+        variant: "destructive" 
+      });
     }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!supabase) {
-      toast({ title: "Supabase not configured", variant: "destructive" });
-      return;
-    }
-
     setIsLoading(true);
 
     try {
       if (editingPost) {
-        const { error } = await supabase
-          .from('posts')
-          .update(formData)
-          .eq('id', editingPost.id);
-        
-        if (error) throw error;
+        const response = await fetch('/api/admin/posts', {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            'x-admin-password': adminPassword,
+          },
+          body: JSON.stringify({
+            postId: editingPost.id,
+            postData: formData,
+          }),
+        });
+
+        if (!response.ok) {
+          const error = await response.json();
+          throw new Error(error.error || 'Failed to update post');
+        }
+
         toast({ title: "Post updated!" });
       } else {
-        const { error } = await supabase
-          .from('posts')
-          .insert(formData);
-        
-        if (error) throw error;
+        const response = await fetch('/api/admin/posts', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'x-admin-password': adminPassword,
+          },
+          body: JSON.stringify(formData),
+        });
+
+        if (!response.ok) {
+          const error = await response.json();
+          throw new Error(error.error || 'Failed to create post');
+        }
+
         toast({ title: "Post created!" });
       }
       
@@ -150,20 +175,21 @@ export default function Admin() {
   };
 
   const handleDelete = async (id: string) => {
-    if (!supabase) {
-      toast({ title: "Supabase not configured", variant: "destructive" });
-      return;
-    }
-
     if (!confirm('Are you sure you want to delete this post?')) return;
     
     try {
-      const { error } = await supabase
-        .from('posts')
-        .delete()
-        .eq('id', id);
-      
-      if (error) throw error;
+      const response = await fetch(`/api/admin/posts?id=${id}`, {
+        method: 'DELETE',
+        headers: {
+          'x-admin-password': adminPassword,
+        },
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || 'Failed to delete post');
+      }
+
       toast({ title: "Post deleted!" });
       loadPosts();
     } catch (error: any) {
