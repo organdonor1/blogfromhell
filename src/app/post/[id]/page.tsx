@@ -4,6 +4,7 @@ import { useParams, useRouter } from 'next/navigation';
 import { ArrowLeft } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import Header from '../../../components/Header';
 import Footer from '../../../components/footer';
 import { supabase } from '../../../integrations/supabase/client';
@@ -15,6 +16,7 @@ interface Post {
   type: string;
   read_time: string | null;
   created_at: string;
+  image_url: string | null;
 }
 
 export default function PostDetail() {
@@ -105,6 +107,17 @@ export default function PostDetail() {
               {post.title}
             </h1>
           </header>
+          
+          {post.image_url && (
+            <div className="mb-10 rounded-lg overflow-hidden aspect-video relative">
+              <Image
+                src={post.image_url}
+                alt={post.title}
+                fill
+                className="object-cover"
+              />
+            </div>
+          )}
           
           <div className="prose-fiction">
             {post.content.split('\n\n').map((paragraph, index) => (

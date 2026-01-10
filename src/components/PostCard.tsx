@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import Image from 'next/image';
 
 export interface Post {
   id: string;
@@ -8,6 +9,7 @@ export interface Post {
   date: string;
   type: 'fiction' | 'news';
   readTime?: string;
+  imageUrl?: string | null;
 }
 
 interface PostCardProps {
@@ -29,6 +31,16 @@ const PostCard = ({ post, index }: PostCardProps) => {
       style={{ animationDelay: `${index * 100}ms` }}
     >
       <article className="py-8 border-b border-border animate-fade-in">
+        {post.imageUrl && (
+          <div className="mb-6 rounded-lg overflow-hidden aspect-video relative">
+            <Image
+              src={post.imageUrl}
+              alt={post.title}
+              fill
+              className="object-cover group-hover:scale-105 transition-transform duration-300"
+            />
+          </div>
+        )}
         <div className="flex items-center gap-3 text-sm text-muted-foreground mb-3">
           <time dateTime={post.date}>{formattedDate}</time>
           {post.readTime && (

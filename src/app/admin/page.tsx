@@ -10,9 +10,10 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '.
 import { Switch } from '../../components/ui/switch';
 import { Label } from '../../components/ui/label';
 import { useToast } from '../../hooks/use-toast';
-import { ArrowLeft, Plus, Trash2, Edit, Users } from 'lucide-react';
+import { ArrowLeft, Plus, Trash2, Edit, Users, Upload, X } from 'lucide-react';
 import Header from '../../components/Header';
 import Footer from '../../components/footer';
+import { supabase } from '../../integrations/supabase/client';
 
 interface Post {
   id: string;
@@ -23,6 +24,7 @@ interface Post {
   read_time: string | null;
   published: boolean;
   created_at: string;
+  image_url: string | null;
 }
 
 interface Subscriber {
@@ -50,7 +52,11 @@ export default function Admin() {
     type: 'fiction',
     read_time: '',
     published: false,
+    image_url: '',
   });
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [uploadingImage, setUploadingImage] = useState(false);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -151,6 +157,23 @@ export default function Admin() {
     setIsLoading(true);
 
     try {
+      // Upload image if a new one was selected
+      let imageUrl = formData.image_url;
+      if (imageFile) {
+        const uploadedUrl = await uploadImage();
+        if (uploadedUrl) {
+          imageUrl = uploadedUrl;
+        } else {
+          setIsLoading(false);
+          return; // Don't proceed if image upload failed
+        }
+      }
+
+      const postDataToSave = {
+        ...formData,
+        image_url: imageUrl || null,
+      };
+
       if (editingPost) {
         const response = await fetch('/api/admin/posts', {
           method: 'PUT',
@@ -160,7 +183,7 @@ export default function Admin() {
           },
           body: JSON.stringify({
             postId: editingPost.id,
-            postData: formData,
+            postData: postDataToSave,
           }),
         });
 
@@ -177,7 +200,7 @@ export default function Admin() {
             'Content-Type': 'application/json',
             'x-admin-password': adminPassword,
           },
-          body: JSON.stringify(formData),
+          body: JSON.stringify(postDataToSave),
         });
 
         if (!response.ok) {
@@ -236,6 +259,63 @@ export default function Admin() {
     }
   };
 
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setImageFile(file);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImagePreview(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const removeImage = () => {
+    setImageFile(null);
+    setImagePreview(null);
+    setFormData({ ...formData, image_url: '' });
+  };
+
+  const uploadImage = async (): Promise<string | null> => {
+    if (!imageFile) {
+      return formData.image_url || null;
+    }
+
+    setUploadingImage(true);
+    try {
+      const fileExt = imageFile.name.split('.').pop();
+      const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
+      const filePath = `post-images/${fileName}`;
+
+      const { error: uploadError, data } = await supabase.storage
+        .from('posts')
+        .upload(filePath, imageFile, {
+          cacheControl: '3600',
+          upsert: false
+        });
+
+      if (uploadError) {
+        throw uploadError;
+      }
+
+      const { data: { publicUrl } } = supabase.storage
+        .from('posts')
+        .getPublicUrl(filePath);
+
+      return publicUrl;
+    } catch (error: any) {
+      toast({
+        title: "Failed to upload image",
+        description: error.message,
+        variant: "destructive",
+      });
+      return null;
+    } finally {
+      setUploadingImage(false);
+    }
+  };
+
   const handleEdit = (post: Post) => {
     setEditingPost(post);
     setFormData({
@@ -245,7 +325,10 @@ export default function Admin() {
       type: post.type,
       read_time: post.read_time || '',
       published: post.published,
+      image_url: post.image_url || '',
     });
+    setImageFile(null);
+    setImagePreview(post.image_url || null);
     setShowForm(true);
   };
 
@@ -257,7 +340,10 @@ export default function Admin() {
       type: 'fiction',
       read_time: '',
       published: false,
+      image_url: '',
     });
+    setImageFile(null);
+    setImagePreview(null);
     setEditingPost(null);
     setShowForm(false);
   };
@@ -370,6 +456,69 @@ export default function Admin() {
                       <SelectItem value="news">News</SelectItem>
                     </SelectContent>
                   </Select>
+                </div>
+
+                <div>
+                  <Label>Image (optional)</Label>
+                  <div className="space-y-2">
+                    {imagePreview && (
+                      <div className="relative w-full h-48 rounded-md overflow-hidden border border-border">
+                        <img
+                          src={imagePreview}
+                          alt="Preview"
+                          className="w-full h-full object-cover"
+                        />
+                        <button
+                          type="button"
+                          onClick={removeImage}
+                          className="absolute top-2 right-2 p-1 bg-background/80 rounded-full hover:bg-background transition-colors"
+                        >
+                          <X className="w-4 h-4" />
+                        </button>
+                      </div>
+                    )}
+                    <div className="space-y-2">
+                      <div>
+                        <Label className="text-sm mb-1">Upload Image</Label>
+                        <Input
+                          type="file"
+                          accept="image/*"
+                          onChange={handleImageChange}
+                          className="cursor-pointer"
+                          disabled={uploadingImage}
+                        />
+                      </div>
+                      <div className="relative">
+                        <div className="absolute inset-0 flex items-center">
+                          <span className="w-full border-t" />
+                        </div>
+                        <div className="relative flex justify-center text-xs uppercase">
+                          <span className="bg-background px-2 text-muted-foreground">Or</span>
+                        </div>
+                      </div>
+                      <div>
+                        <Label className="text-sm mb-1">Image URL</Label>
+                        <Input
+                          type="url"
+                          placeholder="https://example.com/image.jpg"
+                          value={formData.image_url}
+                          onChange={(e) => {
+                            setFormData({ ...formData, image_url: e.target.value });
+                            if (e.target.value) {
+                              setImageFile(null); // Clear file when URL is entered
+                              setImagePreview(e.target.value);
+                            } else if (!imageFile) {
+                              setImagePreview(null);
+                            }
+                          }}
+                          disabled={uploadingImage}
+                        />
+                      </div>
+                    </div>
+                    <p className="text-xs text-muted-foreground">
+                      Upload an image file or paste an image URL. Images uploaded will be stored in Supabase Storage.
+                    </p>
+                  </div>
                 </div>
 
                 <div>

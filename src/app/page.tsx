@@ -15,10 +15,11 @@ interface Post {
   type: string;
   read_time: string | null;
   created_at: string;
+  image_url: string | null;
 }
 
 export default function Index() {
-  const [activeTab, setActiveTab] = useState<'fiction' | 'news'>('fiction');
+  const [activeTab, setActiveTab] = useState<'fiction' | 'news'>('news');
   const [posts, setPosts] = useState<Post[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -58,6 +59,7 @@ export default function Index() {
     type: p.type as 'fiction' | 'news',
     readTime: p.read_time || undefined,
     content: p.content,
+    imageUrl: (p as any).image_url || null,
   }));
 
   return (
