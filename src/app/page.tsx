@@ -1,19 +1,73 @@
-// components
-import { Navbar, Footer } from "@/components";
+'use client';
 
-// sections
-import Hero from "./hero";
-import Posts from "./posts";
-import Articles from "./articles";
+import { useState, useEffect } from 'react';
+import Header from '@/components/Header';
+import TabToggle from '@/components/TabToggle';
+import PostList from '@/components/PostList';
+import Footer from '@/components/Footer';
+import { supabase } from '@/integrations/supabase/client';
 
-export default function Campaign() {
+interface Post {
+  id: string;
+  title: string;
+  excerpt: string | null;
+  content: string;
+  type: string;
+  read_time: string | null;
+  created_at: string;
+}
+
+export default function Index() {
+  const [activeTab, setActiveTab] = useState<'fiction' | 'news'>('fiction');
+  const [posts, setPosts] = useState<Post[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchPosts = async () => {
+      setIsLoading(true);
+      const { data } = await supabase
+        .from('posts')
+        .select('*')
+        .eq('type', activeTab)
+        .eq('published', true)
+        .order('created_at', { ascending: false });
+      
+      setPosts(data || []);
+      setIsLoading(false);
+    };
+
+    fetchPosts();
+  }, [activeTab]);
+
+  const formattedPosts = posts.map(p => ({
+    id: p.id,
+    title: p.title,
+    excerpt: p.excerpt || '',
+    date: p.created_at,
+    type: p.type as 'fiction' | 'news',
+    readTime: p.read_time || undefined,
+    content: p.content,
+  }));
+
   return (
-    <>
-      <Navbar />
-      <Hero />
-      <Posts />
-      <Articles />
+    <div className="min-h-screen flex flex-col bg-background">
+      <Header />
+      
+      <main className="flex-1 container max-w-3xl mx-auto px-6 py-10">
+        <TabToggle activeTab={activeTab} onTabChange={setActiveTab} />
+        
+        <div key={activeTab} className="animate-fade-in">
+          {isLoading ? (
+            <p className="text-center text-muted-foreground py-12">Loading...</p>
+          ) : formattedPosts.length === 0 ? (
+            <p className="text-center text-muted-foreground py-12">No posts yet.</p>
+          ) : (
+            <PostList posts={formattedPosts} />
+          )}
+        </div>
+      </main>
+      
       <Footer />
-    </>
+    </div>
   );
 }

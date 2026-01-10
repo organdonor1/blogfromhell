@@ -1,3 +1,112 @@
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Source+Serif+4:ital,wght@0,400;0,500;0,600;1,400&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 40 33% 97%;
+    --foreground: 30 10% 15%;
+
+    --card: 40 25% 95%;
+    --card-foreground: 30 10% 15%;
+
+    --popover: 40 33% 97%;
+    --popover-foreground: 30 10% 15%;
+
+    --primary: 15 60% 50%;
+    --primary-foreground: 40 33% 97%;
+
+    --secondary: 40 20% 90%;
+    --secondary-foreground: 30 10% 25%;
+
+    --muted: 40 15% 92%;
+    --muted-foreground: 30 8% 45%;
+
+    --accent: 15 60% 50%;
+    --accent-foreground: 40 33% 97%;
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 35 15% 85%;
+    --input: 35 15% 85%;
+    --ring: 15 60% 50%;
+
+    --radius: 0.5rem;
+
+    /* Custom tokens */
+    --font-heading: 'Playfair Display', Georgia, serif;
+    --font-body: 'Source Serif 4', Georgia, serif;
+    --shadow-soft: 0 2px 15px -3px hsl(30 10% 15% / 0.08);
+    --shadow-card: 0 4px 20px -5px hsl(30 10% 15% / 0.1);
+  }
+
+  .dark {
+    --background: 30 10% 10%;
+    --foreground: 40 20% 90%;
+
+    --card: 30 10% 14%;
+    --card-foreground: 40 20% 90%;
+
+    --popover: 30 10% 10%;
+    --popover-foreground: 40 20% 90%;
+
+    --primary: 15 55% 55%;
+    --primary-foreground: 30 10% 10%;
+
+    --secondary: 30 10% 18%;
+    --secondary-foreground: 40 20% 85%;
+
+    --muted: 30 10% 20%;
+    --muted-foreground: 40 15% 60%;
+
+    --accent: 15 55% 55%;
+    --accent-foreground: 30 10% 10%;
+
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 30 10% 22%;
+    --input: 30 10% 22%;
+    --ring: 15 55% 55%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground antialiased;
+    font-family: var(--font-body);
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-heading);
+  }
+}
+
+@layer components {
+  .prose-fiction {
+    @apply text-foreground leading-relaxed;
+    font-family: var(--font-body);
+  }
+
+  .prose-fiction p {
+    @apply mb-6 text-lg;
+  }
+
+  .prose-fiction h2 {
+    @apply text-2xl font-semibold mt-8 mb-4;
+    font-family: var(--font-heading);
+  }
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+}
