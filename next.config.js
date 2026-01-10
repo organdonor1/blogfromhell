@@ -1,6 +1,5 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  output: 'export',
   typescript: {
     // !! WARN !!
     // Dangerously allow production builds to successfully complete even if
@@ -9,7 +8,6 @@ const nextConfig = {
     ignoreBuildErrors: true,
   },
   images: {
-    unoptimized: true,
     remotePatterns: [
       {
         protocol: "https",
@@ -17,7 +15,6 @@ const nextConfig = {
       },
     ],
   },
-  trailingSlash: true,
 };
 
 module.exports = nextConfig;
