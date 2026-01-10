@@ -56,11 +56,13 @@ export default function Admin() {
     e.preventDefault();
     setIsLoading(true);
     
-    const adminPassword = process.env.NEXT_PUBLIC_ADMIN_PASSWORD || '';
+    const correctPassword = process.env.NEXT_PUBLIC_ADMIN_PASSWORD || '';
     
-    if (password === adminPassword) {
+    if (password === correctPassword) {
+      setAdminPassword(password);
       setIsAuthenticated(true);
-      loadPosts();
+      // Pass password directly since state update is async
+      loadPosts(password);
     } else {
       toast({
         title: "Invalid password",
@@ -70,11 +72,20 @@ export default function Admin() {
     setIsLoading(false);
   };
 
-  const loadPosts = async () => {
+  const loadPosts = async (passwordToUse?: string) => {
+    const pwd = passwordToUse || adminPassword;
+    if (!pwd) {
+      toast({ 
+        title: "Not authenticated", 
+        variant: "destructive" 
+      });
+      return;
+    }
+
     try {
       const response = await fetch('/api/admin/posts', {
         headers: {
-          'x-admin-password': adminPassword,
+          'x-admin-password': pwd,
         },
       });
 
@@ -95,6 +106,14 @@ export default function Admin() {
   };
 
   const loadSubscribers = async () => {
+    if (!adminPassword) {
+      toast({ 
+        title: "Not authenticated", 
+        variant: "destructive" 
+      });
+      return;
+    }
+
     try {
       const response = await fetch('/api/admin/subscribers', {
         headers: {
@@ -121,6 +140,14 @@ export default function Admin() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!adminPassword) {
+      toast({ 
+        title: "Not authenticated", 
+        variant: "destructive" 
+      });
+      return;
+    }
+
     setIsLoading(true);
 
     try {
@@ -175,6 +202,14 @@ export default function Admin() {
   };
 
   const handleDelete = async (id: string) => {
+    if (!adminPassword) {
+      toast({ 
+        title: "Not authenticated", 
+        variant: "destructive" 
+      });
+      return;
+    }
+
     if (!confirm('Are you sure you want to delete this post?')) return;
     
     try {
