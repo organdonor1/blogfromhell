@@ -12,7 +12,7 @@ import { supabase } from '../../../integrations/supabase/client';
 interface Post {
   id: string;
   title: string;
-  content: string;
+  content: string | null;
   type: string;
   read_time: string | null;
   created_at: string;
@@ -119,11 +119,13 @@ export default function PostDetail() {
             </div>
           )}
           
-          <div className="prose-fiction">
-            {post.content.split('\n\n').map((paragraph, index) => (
-              <p key={index}>{paragraph}</p>
-            ))}
-          </div>
+          {post.content && (
+            <div className="prose-fiction">
+              {post.content.split('\n\n').map((paragraph, index) => (
+                <p key={index}>{paragraph}</p>
+              ))}
+            </div>
+          )}
         </article>
       </main>
       

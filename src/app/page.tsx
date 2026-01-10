@@ -11,7 +11,7 @@ interface Post {
   id: string;
   title: string;
   excerpt: string | null;
-  content: string;
+  content: string | null;
   type: string;
   read_time: string | null;
   created_at: string;

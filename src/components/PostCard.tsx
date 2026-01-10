@@ -5,7 +5,7 @@ export interface Post {
   id: string;
   title: string;
   excerpt: string;
-  content: string;
+  content: string | null;
   date: string;
   type: 'fiction' | 'news';
   readTime?: string;

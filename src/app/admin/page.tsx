@@ -170,6 +170,7 @@ export default function Admin() {
 
       const postDataToSave = {
         ...formData,
+        content: formData.content.trim() || null,
         image_url: imageUrl || null,
       };
 
@@ -547,12 +548,12 @@ export default function Admin() {
                 </div>
 
                 <div>
-                  <Label>Content</Label>
+                  <Label>Content (optional)</Label>
                   <Textarea
                     value={formData.content}
                     onChange={(e) => setFormData({ ...formData, content: e.target.value })}
                     rows={10}
-                    required
+                    placeholder="Post content... (optional)"
                   />
                 </div>
 
