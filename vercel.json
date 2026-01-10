@@ -3,5 +3,6 @@
   "installCommand": "npm install --legacy-peer-deps",
   "outputDirectory": ".next",
   "framework": "nextjs",
-  "regions": ["iad1"]
+  "regions": ["iad1"],
+  "nodeVersion": "18.x"
 }
