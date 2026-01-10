@@ -6,7 +6,7 @@
   "homepage": "https://demos.creative-tim.com/nextjs-tailwind-blog-posts-page",
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "next build && echo 'Build completed. Checking output directory...' && ls -la out 2>/dev/null || echo 'Warning: out directory not found'",
     "start": "next start",
     "lint": "next lint"
   },
