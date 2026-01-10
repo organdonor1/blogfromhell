@@ -13,7 +13,6 @@ import { useToast } from '../../hooks/use-toast';
 import { ArrowLeft, Plus, Trash2, Edit, Users, Upload, X } from 'lucide-react';
 import Header from '../../components/Header';
 import Footer from '../../components/footer';
-import { supabase } from '../../integrations/supabase/client';
 
 interface Post {
   id: string;
@@ -282,32 +281,42 @@ export default function Admin() {
       return formData.image_url || null;
     }
 
+    if (!adminPassword) {
+      toast({
+        title: "Not authenticated",
+        variant: "destructive",
+      });
+      return null;
+    }
+
     setUploadingImage(true);
     try {
-      const fileExt = imageFile.name.split('.').pop();
-      const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
-      const filePath = `post-images/${fileName}`;
+      const formData = new FormData();
+      formData.append('file', imageFile);
 
-      const { error: uploadError, data } = await supabase.storage
-        .from('posts')
-        .upload(filePath, imageFile, {
-          cacheControl: '3600',
-          upsert: false
-        });
+      const response = await fetch('/api/admin/upload', {
+        method: 'POST',
+        headers: {
+          'x-admin-password': adminPassword,
+        },
+        body: formData,
+      });
 
-      if (uploadError) {
-        throw uploadError;
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || 'Failed to upload image');
       }
 
-      const { data: { publicUrl } } = supabase.storage
-        .from('posts')
-        .getPublicUrl(filePath);
-
-      return publicUrl;
+      const { url } = await response.json();
+      return url;
     } catch (error: any) {
+      let errorMessage = error.message;
+      if (error.message?.includes('Bucket not found') || error.message?.includes('bucket')) {
+        errorMessage = 'Storage bucket "posts" not found. Please create it in Supabase Dashboard > Storage. Make it public for images to be accessible.';
+      }
       toast({
         title: "Failed to upload image",
-        description: error.message,
+        description: errorMessage,
         variant: "destructive",
       });
       return null;
