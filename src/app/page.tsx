@@ -1,11 +1,11 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import Header from '@/components/Header';
-import TabToggle from '@/components/TabToggle';
-import PostList from '@/components/PostList';
-import Footer from '@/components/Footer';
-import { supabase } from '@/integrations/supabase/client';
+import Header from '../components/Header';
+import TabToggle from '../components/TabToggle';
+import PostList from '../components/PostList';
+import Footer from '../components/footer';
+import { supabase } from '../integrations/supabase/client';
 
 interface Post {
   id: string;

@@ -4,9 +4,9 @@ import { useParams, useRouter } from 'next/navigation';
 import { ArrowLeft } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import Header from '@/components/Header';
-import Footer from '@/components/Footer';
-import { supabase } from '@/integrations/supabase/client';
+import Header from '../../../components/Header';
+import Footer from '../../../components/footer';
+import { supabase } from '../../../integrations/supabase/client';
 
 interface Post {
   id: string;
