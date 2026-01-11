@@ -188,6 +188,11 @@ export default function Admin() {
       }
 
       setIsLoading(true);
+      
+      // Validate form data
+      if (!formData || typeof formData !== 'object') {
+        throw new Error('Invalid form data');
+      }
       // Upload image if a new one was selected
       let imageUrl = formData.image_url;
       if (imageFile) {
@@ -259,9 +264,10 @@ export default function Admin() {
       resetForm();
       loadPosts();
     } catch (error: any) {
+      console.error('Error in handleSubmit:', error);
       toast({ 
         title: "Failed to save post", 
-        description: error.message,
+        description: error?.message || 'An unknown error occurred',
         variant: "destructive" 
       });
     } finally {

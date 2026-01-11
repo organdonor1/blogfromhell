@@ -40,7 +40,6 @@ export default function HeightMatchedArticles({ featuredPost, secondaryPosts }: 
       try {
         if (!featuredRef.current || !secondaryRef.current) return;
         if (window.innerWidth < 1024) {
-          // Reset on mobile
           secondaryRef.current.style.height = '';
           secondaryRef.current.style.maxHeight = '';
           return;
@@ -48,19 +47,27 @@ export default function HeightMatchedArticles({ featuredPost, secondaryPosts }: 
 
         const featuredHeight = featuredRef.current.offsetHeight;
         if (featuredHeight > 0) {
-          // Set exact height - this forces the container to match
+          // Set exact height to force the container to match
           secondaryRef.current.style.height = `${featuredHeight}px`;
           secondaryRef.current.style.maxHeight = `${featuredHeight}px`;
+          
+          // Also ensure inner flex container respects the height
+          const innerContainer = secondaryRef.current.firstElementChild as HTMLElement;
+          if (innerContainer) {
+            innerContainer.style.height = '100%';
+            innerContainer.style.minHeight = '0';
+          }
         }
       } catch (error) {
         console.error('Error matching heights:', error);
       }
     };
 
-    // Multiple timeouts to ensure DOM is ready
+    // Multiple timeouts to catch different render phases
     const timeoutId1 = setTimeout(matchHeights, 100);
     const timeoutId2 = setTimeout(matchHeights, 300);
     const timeoutId3 = setTimeout(matchHeights, 600);
+    const timeoutId4 = setTimeout(matchHeights, 1000);
 
     // Watch for resize
     let resizeObserver: ResizeObserver | null = null;
@@ -77,15 +84,18 @@ export default function HeightMatchedArticles({ featuredPost, secondaryPosts }: 
     }
 
     window.addEventListener('resize', matchHeights);
+    window.addEventListener('load', matchHeights);
 
     return () => {
       clearTimeout(timeoutId1);
       clearTimeout(timeoutId2);
       clearTimeout(timeoutId3);
+      clearTimeout(timeoutId4);
       if (resizeObserver) {
         resizeObserver.disconnect();
       }
       window.removeEventListener('resize', matchHeights);
+      window.removeEventListener('load', matchHeights);
     };
   }, [isMounted, featuredPost, secondaryPosts]);
 
@@ -96,26 +106,30 @@ export default function HeightMatchedArticles({ featuredPost, secondaryPosts }: 
         <FeaturedArticle post={featuredPost} />
       </div>
 
-      {/* Secondary articles with photos - this container will be height-constrained */}
+      {/* Secondary articles - this container will be height-constrained */}
       <div 
         className="flex flex-col" 
         ref={secondaryRef}
-        style={{ minHeight: 0, overflow: 'hidden' }}
+        style={{ minHeight: 0, overflow: 'hidden', position: 'relative' }}
       >
-        <div className="flex flex-col h-full" style={{ gap: '1rem', minHeight: 0 }}>
-          {secondaryPosts.slice(0, 3).map((post, index) => (
-            <div 
-              key={post?.id || index} 
-              className="flex flex-col"
-              style={{ 
-                flex: index < 2 ? '1 1 0%' : '0 1 auto', 
-                minHeight: 0,
-                overflow: 'hidden'
-              }}
-            >
-              <SecondaryArticleCard post={post} />
-            </div>
-          ))}
+        <div className="flex flex-col h-full" style={{ gap: '1rem', minHeight: 0, height: '100%' }}>
+          {secondaryPosts.slice(0, 3).map((post, index) => {
+            if (!post || !post.id) return null;
+            return (
+              <div 
+                key={post.id} 
+                className="flex flex-col"
+                style={{ 
+                  flex: index < 2 ? '1 1 0%' : '0 1 auto', 
+                  minHeight: 0,
+                  maxHeight: index < 2 ? '100%' : 'none',
+                  overflow: 'hidden'
+                }}
+              >
+                <SecondaryArticleCard post={post} />
+              </div>
+            );
+          })}
         </div>
       </div>
     </div>
