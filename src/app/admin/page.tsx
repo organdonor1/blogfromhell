@@ -202,7 +202,7 @@ export default function Admin() {
 
       const postDataToSave = {
         ...formData,
-        content: formData.content ? formData.content.trim() || null : null,
+        content: formData.content && typeof formData.content === 'string' ? formData.content.trim() || null : null,
         image_url: imageUrl || null,
         section: formData.section && formData.section.trim() ? formData.section.trim() : null,
         featured: formData.featured === true,

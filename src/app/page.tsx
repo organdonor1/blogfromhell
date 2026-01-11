@@ -109,20 +109,20 @@ function IndexContent() {
         ) : (
           <>
             {displayFeatured ? (
-              <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-12">
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-12 lg:items-stretch">
                 {/* Main Content - Featured Article */}
                 <div className="lg:col-span-2">
-                  <div className="h-full">
-                    <FeaturedArticle post={displayFeatured} />
-                  </div>
+                  <FeaturedArticle post={displayFeatured} />
                 </div>
 
                 {/* Secondary articles with photos */}
-                <div className="flex flex-col">
+                <div className="flex flex-col h-full">
                   {posts.length > 1 && (
-                    <div className="flex flex-col gap-4 h-full">
-                      {posts.slice(1, 4).map((post) => (
-                        <SecondaryArticleCard key={post.id} post={post} />
+                    <div className="flex flex-col h-full justify-between gap-4">
+                      {posts.slice(1, 4).map((post, index) => (
+                        <div key={post.id} className={index < 2 ? 'flex-1 flex' : 'flex'}>
+                          <SecondaryArticleCard post={post} />
+                        </div>
                       ))}
                     </div>
                   )}

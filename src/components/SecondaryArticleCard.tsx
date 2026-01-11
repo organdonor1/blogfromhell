@@ -16,7 +16,7 @@ interface SecondaryArticleCardProps {
 
 export default function SecondaryArticleCard({ post }: SecondaryArticleCardProps) {
   return (
-    <Link href={`/post/${post.id}`} className="block group border-b-2 border-black pb-4 last:border-0 mb-4 h-full flex flex-col">
+    <Link href={`/post/${post.id}`} className="block group border-b-2 border-black pb-4 last:border-0 h-full flex flex-col">
       {post.image_url && (
         <div className="mb-3 aspect-video relative overflow-hidden bg-gray-200 flex-shrink-0">
           <Image
@@ -28,9 +28,9 @@ export default function SecondaryArticleCard({ post }: SecondaryArticleCardProps
         </div>
       )}
       
-      <div className="flex flex-col flex-1">
+      <div className="flex flex-col flex-1 min-h-0">
         {post.section && (
-          <div className="mb-2">
+          <div className="mb-2 flex-shrink-0">
             <span className="inline-block bg-black text-white text-xs font-bold uppercase tracking-wider px-2 py-1">
               {post.section}
             </span>
