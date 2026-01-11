@@ -5,6 +5,7 @@ import NewspaperHeader from '../components/NewspaperHeader';
 import FeaturedArticle from '../components/FeaturedArticle';
 import ArticleList from '../components/ArticleList';
 import NewspaperSidebar from '../components/NewspaperSidebar';
+import SecondaryArticleCard from '../components/SecondaryArticleCard';
 import Footer from '../components/footer';
 import Pagination from '../components/Pagination';
 import { supabase } from '../integrations/supabase/client';
@@ -113,27 +114,17 @@ function IndexContent() {
                 <div className="lg:col-span-2">
                   <FeaturedArticle post={displayFeatured} />
                   
-                  {/* Secondary articles */}
+                </div>
+
+                {/* Secondary articles with photos */}
+                <div>
                   {posts.length > 1 && (
-                    <div className="mt-8 space-y-4">
+                    <div>
                       {posts.slice(1, 4).map((post) => (
-                        <Link
-                          key={post.id}
-                          href={`/post/${post.id}`}
-                          className="block group"
-                        >
-                          <h3 className="text-lg font-bold text-black group-hover:text-green-600 transition-colors">
-                            {post.title}
-                          </h3>
-                        </Link>
+                        <SecondaryArticleCard key={post.id} post={post} />
                       ))}
                     </div>
                   )}
-                </div>
-
-                {/* Sidebar */}
-                <div>
-                  <NewspaperSidebar trendingPosts={trendingPosts} />
                 </div>
               </div>
             ) : (
@@ -152,15 +143,13 @@ function IndexContent() {
 
             {/* Article List for page 1 (below featured) or all pages */}
             {displayFeatured ? (
-              <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                <div className="lg:col-span-2">
-                  <ArticleList posts={displayPosts} />
-                  <Pagination
-                    currentPage={currentPage}
-                    totalPages={totalPages}
-                    basePath="/"
-                  />
-                </div>
+              <div>
+                <ArticleList posts={displayPosts} />
+                <Pagination
+                  currentPage={currentPage}
+                  totalPages={totalPages}
+                  basePath="/"
+                />
               </div>
             ) : (
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
