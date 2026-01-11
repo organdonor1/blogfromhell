@@ -37,8 +37,6 @@ function IndexContent() {
   const [featuredPost, setFeaturedPost] = useState<Post | null>(null);
   const [trendingPosts, setTrendingPosts] = useState<Post[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const featuredRef = useRef<HTMLDivElement>(null);
-  const secondaryRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const fetchPosts = async () => {
