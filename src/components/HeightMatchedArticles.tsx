@@ -42,29 +42,73 @@ export default function HeightMatchedArticles({ featuredPost, secondaryPosts }: 
         if (!featuredRef.current || !secondaryRef.current) return;
         if (window.innerWidth < 1024) {
           setMatchedHeight(null);
+          if (secondaryRef.current) {
+            secondaryRef.current.style.height = '';
+            secondaryRef.current.style.maxHeight = '';
+          }
           return;
         }
 
-        const featuredHeight = featuredRef.current.offsetHeight;
+        // Measure the actual content height of the featured article
+        // Get the article element inside the container
+        const featuredArticle = featuredRef.current.querySelector('article') as HTMLElement;
+        if (!featuredArticle) return;
+
+        // Get the actual height including padding but excluding margin
+        const featuredHeight = featuredArticle.offsetHeight;
+        
         if (featuredHeight > 0) {
           setMatchedHeight(featuredHeight);
+          // Also directly set it to ensure it applies
+          secondaryRef.current.style.height = `${featuredHeight}px`;
+          secondaryRef.current.style.maxHeight = `${featuredHeight}px`;
         }
       } catch (error) {
         console.error('Error matching heights:', error);
       }
     };
 
+    // Wait for images to load before measuring
+    const waitForImages = () => {
+      const images = featuredRef.current?.querySelectorAll('img');
+      if (images && images.length > 0) {
+        let loadedCount = 0;
+        const totalImages = images.length;
+        
+        const checkComplete = () => {
+          loadedCount++;
+          if (loadedCount === totalImages) {
+            setTimeout(updateHeight, 50);
+          }
+        };
+
+        images.forEach((img) => {
+          if (img.complete) {
+            checkComplete();
+          } else {
+            img.addEventListener('load', checkComplete, { once: true });
+            img.addEventListener('error', checkComplete, { once: true });
+          }
+        });
+
+        // Fallback timeout
+        setTimeout(updateHeight, 1000);
+      } else {
+        updateHeight();
+      }
+    };
+
     // Multiple timeouts to catch different render phases
-    const timeoutId1 = setTimeout(updateHeight, 100);
-    const timeoutId2 = setTimeout(updateHeight, 300);
-    const timeoutId3 = setTimeout(updateHeight, 600);
-    const timeoutId4 = setTimeout(updateHeight, 1000);
+    const timeoutId1 = setTimeout(waitForImages, 100);
+    const timeoutId2 = setTimeout(waitForImages, 300);
+    const timeoutId3 = setTimeout(waitForImages, 600);
+    const timeoutId4 = setTimeout(waitForImages, 1000);
 
     // Watch for resize
     let resizeObserver: ResizeObserver | null = null;
     try {
       resizeObserver = new ResizeObserver(() => {
-        updateHeight();
+        waitForImages();
       });
 
       if (featuredRef.current) {
@@ -74,8 +118,8 @@ export default function HeightMatchedArticles({ featuredPost, secondaryPosts }: 
       console.warn('ResizeObserver not available');
     }
 
-    window.addEventListener('resize', updateHeight);
-    window.addEventListener('load', updateHeight);
+    window.addEventListener('resize', waitForImages);
+    window.addEventListener('load', waitForImages);
 
     return () => {
       clearTimeout(timeoutId1);
@@ -85,8 +129,8 @@ export default function HeightMatchedArticles({ featuredPost, secondaryPosts }: 
       if (resizeObserver) {
         resizeObserver.disconnect();
       }
-      window.removeEventListener('resize', updateHeight);
-      window.removeEventListener('load', updateHeight);
+      window.removeEventListener('resize', waitForImages);
+      window.removeEventListener('load', waitForImages);
     };
   }, [isMounted, featuredPost, secondaryPosts]);
 
@@ -104,16 +148,20 @@ export default function HeightMatchedArticles({ featuredPost, secondaryPosts }: 
         style={{ 
           minHeight: 0, 
           overflow: 'hidden',
-          ...(matchedHeight && window.innerWidth >= 1024 ? { height: `${matchedHeight}px`, maxHeight: `${matchedHeight}px` } : {})
+          ...(matchedHeight && typeof window !== 'undefined' && window.innerWidth >= 1024 ? { 
+            height: `${matchedHeight}px`, 
+            maxHeight: `${matchedHeight}px` 
+          } : {})
         }}
       >
         <div 
-          className="flex flex-col h-full" 
+          className="flex flex-col" 
           style={{ 
             gap: '1rem', 
             minHeight: 0, 
             height: '100%',
-            ...(matchedHeight && window.innerWidth >= 1024 ? { maxHeight: '100%' } : {})
+            maxHeight: '100%',
+            overflow: 'hidden'
           }}
         >
           {secondaryPosts.slice(0, 3).map((post, index) => {
