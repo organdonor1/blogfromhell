@@ -1,6 +1,6 @@
 'use client';
 
-import { Suspense } from 'react';
+import { Suspense, useEffect, useRef } from 'react';
 import NewspaperHeader from '../components/NewspaperHeader';
 import FeaturedArticle from '../components/FeaturedArticle';
 import ArticleList from '../components/ArticleList';
@@ -9,7 +9,7 @@ import SecondaryArticleCard from '../components/SecondaryArticleCard';
 import Footer from '../components/footer';
 import Pagination from '../components/Pagination';
 import { supabase } from '../integrations/supabase/client';
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 
@@ -38,25 +38,25 @@ function IndexContent() {
   const [featuredPost, setFeaturedPost] = useState<Post | null>(null);
   const [trendingPosts, setTrendingPosts] = useState<Post[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const featuredRef = useRef<HTMLDivElement>(null);
+  const secondaryRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const fetchPosts = async () => {
       setIsLoading(true);
       try {
         // Fetch featured post
-        const { data: featuredData, error: featuredError } = await supabase
+        const { data: featuredData } = await supabase
           .from('posts')
           .select('*')
           .eq('published', true)
           .eq('featured', true)
           .order('created_at', { ascending: false })
           .limit(1)
-          .maybeSingle();
+          .single();
 
-        if (!featuredError && featuredData) {
+        if (featuredData) {
           setFeaturedPost(featuredData);
-        } else {
-          setFeaturedPost(null);
         }
 
         // Fetch trending posts
@@ -71,24 +71,17 @@ function IndexContent() {
         setTrendingPosts(trendingData || []);
 
         // Fetch regular posts (exclude featured)
-        const { data: postsData, error: postsError } = await supabase
+        const { data: postsData } = await supabase
           .from('posts')
           .select('*')
           .eq('published', true)
           .neq('featured', true)
           .order('created_at', { ascending: false });
 
-        if (postsError) {
-          console.error('Error fetching posts:', postsError);
-          setPosts([]);
-        } else {
-          setPosts(postsData || []);
-        }
+        setPosts(postsData || []);
       } catch (error) {
         console.error('Error fetching posts:', error);
         setPosts([]);
-        setFeaturedPost(null);
-        setTrendingPosts([]);
       } finally {
         setIsLoading(false);
       }
@@ -96,6 +89,22 @@ function IndexContent() {
 
     fetchPosts();
   }, []);
+
+  // Match heights after render
+  useEffect(() => {
+    if (featuredRef.current && secondaryRef.current && window.innerWidth >= 1024) {
+      const matchHeights = () => {
+        const featuredHeight = featuredRef.current?.offsetHeight;
+        if (featuredHeight && secondaryRef.current) {
+          secondaryRef.current.style.height = `${featuredHeight}px`;
+        }
+      };
+      
+      matchHeights();
+      window.addEventListener('resize', matchHeights);
+      return () => window.removeEventListener('resize', matchHeights);
+    }
+  }, [isLoading, displayFeatured]);
 
   // Pagination logic
   const startIndex = (currentPage - 1) * POSTS_PER_PAGE;
@@ -118,18 +127,18 @@ function IndexContent() {
         ) : (
           <>
             {displayFeatured ? (
-              <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-12 lg:grid-rows-[1fr]">
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-12">
                 {/* Main Content - Featured Article */}
-                <div className="lg:col-span-2 lg:row-span-1">
+                <div className="lg:col-span-2" ref={featuredRef}>
                   <FeaturedArticle post={displayFeatured} />
                 </div>
 
                 {/* Secondary articles with photos */}
-                <div className="lg:row-span-1 flex flex-col">
+                <div className="flex flex-col" ref={secondaryRef}>
                   {posts.length > 1 && (
                     <div className="flex flex-col h-full" style={{ gap: '1rem' }}>
                       {posts.slice(1, 4).map((post, index) => (
-                        <div key={post.id} className={index < 2 ? 'flex-1' : ''} style={{ minHeight: 0 }}>
+                        <div key={post.id} style={{ flex: index < 2 ? '1 1 0%' : '0 0 auto', minHeight: 0 }}>
                           <SecondaryArticleCard post={post} />
                         </div>
                       ))}
