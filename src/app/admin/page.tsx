@@ -493,6 +493,7 @@ export default function Admin() {
                       <SelectItem value="">None</SelectItem>
                       <SelectItem value="News">News</SelectItem>
                       <SelectItem value="Local">Local</SelectItem>
+                      <SelectItem value="Politics">Politics</SelectItem>
                       <SelectItem value="Sports">Sports</SelectItem>
                       <SelectItem value="Entertainment">Entertainment</SelectItem>
                       <SelectItem value="Opinion">Opinion</SelectItem>

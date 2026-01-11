@@ -102,7 +102,7 @@ function IndexContent() {
     <div className="min-h-screen bg-white">
       <NewspaperHeader />
       
-      <main className="container mx-auto px-6 py-8">
+      <main className="container mx-auto px-4 md:px-6 py-8 max-w-7xl">
         {isLoading ? (
           <div className="text-center py-12 text-gray-600">Loading...</div>
         ) : (

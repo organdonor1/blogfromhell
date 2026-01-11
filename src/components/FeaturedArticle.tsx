@@ -23,40 +23,43 @@ export default function FeaturedArticle({ post }: FeaturedArticleProps) {
   });
 
   return (
-    <article className="mb-8">
+    <article className="mb-8 border-b-4 border-black pb-8">
       <Link href={`/post/${post.id}`} className="block group">
         {post.image_url && (
-          <div className="mb-4 aspect-video relative overflow-hidden">
+          <div className="mb-6 aspect-video relative overflow-hidden bg-gray-200">
             <Image
               src={post.image_url}
               alt={post.title}
               fill
-              className="object-cover group-hover:scale-105 transition-transform duration-300"
+              className="object-cover"
+              priority
             />
           </div>
         )}
         
         {post.section && (
-          <span className="text-sm text-green-600 font-medium uppercase tracking-wide mb-2 block">
-            {post.section}
-          </span>
+          <div className="mb-3">
+            <span className="inline-block bg-black text-white text-xs font-bold uppercase tracking-wider px-3 py-1">
+              {post.section}
+            </span>
+          </div>
         )}
         
-        <h1 className="text-3xl md:text-4xl font-bold text-black mb-3 group-hover:text-green-600 transition-colors leading-tight">
+        <h1 className="text-4xl md:text-5xl lg:text-6xl font-black text-black mb-4 leading-tight" style={{ fontFamily: 'Georgia, serif' }}>
           {post.title}
         </h1>
         
         {post.excerpt && (
-          <p className="text-lg text-gray-700 mb-3 leading-relaxed">
+          <p className="text-xl text-gray-800 mb-4 leading-relaxed font-medium" style={{ fontFamily: 'Georgia, serif' }}>
             {post.excerpt}
           </p>
         )}
         
-        <div className="flex items-center gap-2 text-sm text-gray-600">
+        <div className="flex items-center gap-3 text-sm text-gray-600 font-medium">
           <time dateTime={post.created_at}>{formattedDate}</time>
           {post.read_time && (
             <>
-              <span>•</span>
+              <span className="text-gray-400">•</span>
               <span>{post.read_time}</span>
             </>
           )}

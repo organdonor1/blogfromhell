@@ -30,6 +30,7 @@ const POSTS_PER_PAGE = 10;
 const sectionNames: Record<string, string> = {
   news: 'News',
   local: 'Local',
+  politics: 'Politics',
   sports: 'Sports',
   entertainment: 'Entertainment',
   opinion: 'Opinion',
@@ -114,10 +115,10 @@ function SectionPageContent() {
     <div className="min-h-screen bg-white">
       <NewspaperHeader />
       
-      <main className="container mx-auto px-6 py-8">
+      <main className="container mx-auto px-4 md:px-6 py-8 max-w-7xl">
         {/* Section Title */}
-        <div className="mb-8 text-center">
-          <h1 className="text-4xl md:text-5xl font-bold text-black uppercase tracking-wide">
+        <div className="mb-8 text-center border-b-4 border-black pb-4">
+          <h1 className="text-5xl md:text-6xl font-black text-black uppercase tracking-tight" style={{ fontFamily: 'Georgia, serif' }}>
             {sectionName}
           </h1>
         </div>
@@ -134,7 +135,7 @@ function SectionPageContent() {
                   
                   {/* Secondary articles */}
                   {posts.length > 1 && (
-                    <div className="mt-8 space-y-4">
+                    <div className="mt-8 space-y-3 border-t-2 border-black pt-6">
                       {posts
                         .filter(p => p.id !== displayFeatured.id)
                         .slice(0, 3)
@@ -144,7 +145,7 @@ function SectionPageContent() {
                             href={`/post/${post.id}`}
                             className="block group"
                           >
-                            <h3 className="text-lg font-bold text-black group-hover:text-green-600 transition-colors">
+                            <h3 className="text-xl font-black text-black group-hover:underline leading-tight" style={{ fontFamily: 'Georgia, serif' }}>
                               {post.title}
                             </h3>
                           </Link>

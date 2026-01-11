@@ -20,37 +20,39 @@ export default function NewspaperSidebar({ trendingPosts = [], adSpace }: Newspa
     <aside className="w-full md:w-80 space-y-6">
       {/* Trending Section */}
       {trendingPosts.length > 0 && (
-        <div className="bg-green-600 text-white p-4 mb-6">
-          <h2 className="text-lg font-bold uppercase tracking-wide">Trending</h2>
+        <div className="bg-black text-white p-4 mb-6">
+          <h2 className="text-xl font-black uppercase tracking-wider" style={{ fontFamily: 'Georgia, serif' }}>
+            Trending
+          </h2>
         </div>
       )}
       
       {trendingPosts.length > 0 && (
-        <div className="space-y-4">
+        <div className="space-y-6">
           {trendingPosts.map((post) => (
             <Link
               key={post.id}
               href={`/post/${post.id}`}
-              className="block group"
+              className="block group border-b-2 border-black pb-4 last:border-0"
             >
               <div className="flex gap-3">
                 {post.image_url && (
-                  <div className="w-20 h-20 flex-shrink-0 relative overflow-hidden">
+                  <div className="w-20 h-20 flex-shrink-0 relative overflow-hidden bg-gray-200">
                     <Image
                       src={post.image_url}
                       alt={post.title}
                       fill
-                      className="object-cover group-hover:scale-105 transition-transform"
+                      className="object-cover"
                     />
                   </div>
                 )}
                 <div className="flex-1 min-w-0">
                   {post.section && (
-                    <span className="text-xs text-green-600 font-medium uppercase">
+                    <span className="text-xs text-gray-600 font-bold uppercase tracking-wide mb-1 block">
                       {post.section}
                     </span>
                   )}
-                  <h3 className="text-sm font-bold text-black group-hover:text-green-600 transition-colors line-clamp-2 mt-1">
+                  <h3 className="text-sm font-black text-black group-hover:underline leading-tight" style={{ fontFamily: 'Georgia, serif' }}>
                     {post.title}
                   </h3>
                 </div>
@@ -61,18 +63,16 @@ export default function NewspaperSidebar({ trendingPosts = [], adSpace }: Newspa
       )}
 
       {/* Ad Space */}
-      {adSpace && (
-        <div className="border-2 border-gray-300 p-4 bg-gray-50 min-h-[300px] flex items-center justify-center">
-          {adSpace}
-        </div>
-      )}
-
-      {/* Placeholder for additional ad space */}
-      {!adSpace && (
-        <div className="border-2 border-dashed border-gray-300 p-4 bg-gray-50 min-h-[300px] flex items-center justify-center text-gray-400 text-sm">
-          Ad Space
-        </div>
-      )}
+      <div className="border-4 border-black bg-gray-100 p-6 min-h-[300px] flex items-center justify-center">
+        {adSpace || (
+          <div className="text-center text-gray-500 text-sm">
+            <div className="border-2 border-dashed border-gray-400 p-8">
+              <p className="font-bold uppercase tracking-wide">Advertisement</p>
+              <p className="text-xs mt-2">300x250</p>
+            </div>
+          </div>
+        )}
+      </div>
     </aside>
   );
 }
