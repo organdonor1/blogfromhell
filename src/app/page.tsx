@@ -103,11 +103,15 @@ function IndexContent() {
 
   // Match heights after render
   useEffect(() => {
-    if (displayFeatured && featuredRef.current && secondaryRef.current && window.innerWidth >= 1024) {
+    if (!isLoading && displayFeatured && featuredRef.current && secondaryRef.current && typeof window !== 'undefined' && window.innerWidth >= 1024) {
       const matchHeights = () => {
-        const featuredHeight = featuredRef.current?.offsetHeight;
-        if (featuredHeight && secondaryRef.current) {
-          secondaryRef.current.style.height = `${featuredHeight}px`;
+        try {
+          const featuredHeight = featuredRef.current?.offsetHeight;
+          if (featuredHeight && secondaryRef.current) {
+            secondaryRef.current.style.height = `${featuredHeight}px`;
+          }
+        } catch (error) {
+          console.error('Error matching heights:', error);
         }
       };
       
@@ -119,18 +123,7 @@ function IndexContent() {
         window.removeEventListener('resize', matchHeights);
       };
     }
-  }, [isLoading, displayFeatured, posts]);
-
-  // Pagination logic
-  const startIndex = (currentPage - 1) * POSTS_PER_PAGE;
-  const totalPages = Math.ceil(posts.length / POSTS_PER_PAGE);
-
-  // If no featured post, use the first post
-  const displayFeatured = currentPage === 1 ? (featuredPost || posts[0]) : null;
-  const postsToPaginate = featuredPost && currentPage === 1 
-    ? posts.filter(p => p.id !== featuredPost.id)
-    : posts.filter(p => featuredPost ? p.id !== featuredPost.id : true);
-  const displayPosts = postsToPaginate.slice(startIndex, startIndex + POSTS_PER_PAGE);
+  }, [isLoading, displayFeatured, posts.length]);
 
   return (
     <div className="min-h-screen bg-white">
