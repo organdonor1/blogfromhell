@@ -103,14 +103,15 @@ function IndexContent() {
     : posts.filter(p => featuredPost ? p.id !== featuredPost.id : true);
   const displayPosts = postsToPaginate.slice(startIndex, startIndex + POSTS_PER_PAGE);
 
-  // Match heights after render
+  // Match heights after render - set max-height on secondary to match featured
   useEffect(() => {
     if (!isLoading && displayFeatured && featuredRef.current && secondaryRef.current && typeof window !== 'undefined' && window.innerWidth >= 1024) {
       const matchHeights = () => {
         try {
           const featuredHeight = featuredRef.current?.offsetHeight;
           if (featuredHeight && secondaryRef.current) {
-            secondaryRef.current.style.height = `${featuredHeight}px`;
+            secondaryRef.current.style.maxHeight = `${featuredHeight}px`;
+            secondaryRef.current.style.overflow = 'hidden';
           }
         } catch (error) {
           console.error('Error matching heights:', error);
@@ -119,9 +120,14 @@ function IndexContent() {
       
       // Use setTimeout to ensure DOM is fully rendered
       const timeoutId = setTimeout(matchHeights, 100);
+      const resizeObserver = new ResizeObserver(matchHeights);
+      if (featuredRef.current) {
+        resizeObserver.observe(featuredRef.current);
+      }
       window.addEventListener('resize', matchHeights);
       return () => {
         clearTimeout(timeoutId);
+        resizeObserver.disconnect();
         window.removeEventListener('resize', matchHeights);
       };
     }
@@ -144,14 +150,14 @@ function IndexContent() {
                 </div>
 
                 {/* Secondary articles with photos */}
-                <div className="flex flex-col" ref={secondaryRef}>
+                <div className="flex flex-col" ref={secondaryRef} style={{ minHeight: 0 }}>
                   {posts.length > 1 && displayFeatured && (
-                    <div className="flex flex-col h-full" style={{ gap: '1rem' }}>
+                    <div className="flex flex-col h-full" style={{ gap: '1rem', minHeight: 0 }}>
                       {posts
                         .filter(p => displayFeatured && p.id !== displayFeatured.id)
                         .slice(0, 3)
                         .map((post, index) => (
-                          <div key={post.id} style={{ flex: index < 2 ? '1 1 0%' : '0 0 auto', minHeight: 0 }}>
+                          <div key={post.id} style={{ flex: index < 2 ? '1 1 0%' : '0 0 auto', minHeight: 0, display: 'flex', flexDirection: 'column' }}>
                             <SecondaryArticleCard post={post} />
                           </div>
                         ))}
