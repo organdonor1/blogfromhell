@@ -27,26 +27,25 @@ export default function SecondaryArticleCard({ post }: SecondaryArticleCardProps
     >
       {post.image_url && (
         <div 
-          className="mb-3 relative bg-gray-200" 
+          className="mb-3 relative bg-gray-200 flex-shrink-0" 
           style={{ 
             width: '100%', 
-            flex: '0 1 30%', // Allow image to shrink, max 30% of container
+            flex: '0 1 auto',
             minHeight: 0,
-            maxHeight: '40%',
+            maxHeight: '45%',
             position: 'relative',
-            overflow: 'hidden'
+            overflow: 'hidden',
+            aspectRatio: '16/9'
           }}
         >
-          <div style={{ width: '100%', height: '100%', position: 'relative', paddingBottom: '56.25%' }}>
-            <Image
-              src={post.image_url}
-              alt={post.title || ''}
-              fill
-              className="object-cover group-hover:scale-105 transition-transform"
-              sizes="(max-width: 768px) 100vw, 33vw"
-              style={{ objectFit: 'cover', position: 'absolute', top: 0, left: 0 }}
-            />
-          </div>
+          <Image
+            src={post.image_url}
+            alt={post.title || ''}
+            fill
+            className="object-contain group-hover:scale-105 transition-transform"
+            sizes="(max-width: 768px) 100vw, 33vw"
+            style={{ objectFit: 'contain' }}
+          />
         </div>
       )}
       
