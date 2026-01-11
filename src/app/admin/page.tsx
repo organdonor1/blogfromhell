@@ -213,9 +213,8 @@ export default function Admin() {
       };
 
       // Handle content safely
-      if (formData.content && typeof formData.content === 'string') {
-        const trimmed = formData.content.trim();
-        postDataToSave.content = trimmed || null;
+      if (formData.content && typeof formData.content === 'string' && formData.content.trim()) {
+        postDataToSave.content = formData.content.trim();
       } else {
         postDataToSave.content = null;
       }

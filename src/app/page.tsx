@@ -46,17 +46,19 @@ function IndexContent() {
       setIsLoading(true);
       try {
         // Fetch featured post
-        const { data: featuredData } = await supabase
+        const { data: featuredData, error: featuredError } = await supabase
           .from('posts')
           .select('*')
           .eq('published', true)
           .eq('featured', true)
           .order('created_at', { ascending: false })
           .limit(1)
-          .single();
+          .maybeSingle();
 
-        if (featuredData) {
+        if (!featuredError && featuredData) {
           setFeaturedPost(featuredData);
+        } else {
+          setFeaturedPost(null);
         }
 
         // Fetch trending posts
