@@ -23,8 +23,8 @@ export default function FeaturedArticle({ post }: FeaturedArticleProps) {
   });
 
   return (
-    <article className="mb-8 border-b-4 border-black pb-8">
-      <Link href={`/post/${post.id}`} className="block group">
+    <article className="mb-8 border-b-4 border-black pb-8 h-full flex flex-col">
+      <Link href={`/post/${post.id}`} className="block group flex-1 flex flex-col">
         {post.image_url && (
           <div className="mb-6 aspect-video relative overflow-hidden bg-gray-200">
             <Image

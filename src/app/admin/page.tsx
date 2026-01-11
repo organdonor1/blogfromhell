@@ -366,7 +366,7 @@ export default function Admin() {
     setFormData({
       title: post.title,
       excerpt: post.excerpt || '',
-      content: post.content || '',
+      content: (post.content && typeof post.content === 'string') ? post.content : '',
       type: post.type,
       section: post.section || '',
       read_time: post.read_time || '',

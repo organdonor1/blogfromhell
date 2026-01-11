@@ -44,17 +44,19 @@ function IndexContent() {
       setIsLoading(true);
       try {
         // Fetch featured post
-        const { data: featuredData } = await supabase
+        const { data: featuredData, error: featuredError } = await supabase
           .from('posts')
           .select('*')
           .eq('published', true)
           .eq('featured', true)
           .order('created_at', { ascending: false })
           .limit(1)
-          .single();
+          .maybeSingle();
 
-        if (featuredData) {
+        if (!featuredError && featuredData) {
           setFeaturedPost(featuredData);
+        } else {
+          setFeaturedPost(null);
         }
 
         // Fetch trending posts
@@ -69,17 +71,24 @@ function IndexContent() {
         setTrendingPosts(trendingData || []);
 
         // Fetch regular posts (exclude featured)
-        const { data: postsData } = await supabase
+        const { data: postsData, error: postsError } = await supabase
           .from('posts')
           .select('*')
           .eq('published', true)
           .neq('featured', true)
           .order('created_at', { ascending: false });
 
-        setPosts(postsData || []);
+        if (postsError) {
+          console.error('Error fetching posts:', postsError);
+          setPosts([]);
+        } else {
+          setPosts(postsData || []);
+        }
       } catch (error) {
         console.error('Error fetching posts:', error);
         setPosts([]);
+        setFeaturedPost(null);
+        setTrendingPosts([]);
       } finally {
         setIsLoading(false);
       }
@@ -109,18 +118,20 @@ function IndexContent() {
         ) : (
           <>
             {displayFeatured ? (
-              <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-12 lg:items-stretch">
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-12" style={{ gridTemplateRows: '1fr' }}>
                 {/* Main Content - Featured Article */}
                 <div className="lg:col-span-2">
-                  <FeaturedArticle post={displayFeatured} />
+                  <div className="h-full">
+                    <FeaturedArticle post={displayFeatured} />
+                  </div>
                 </div>
 
                 {/* Secondary articles with photos */}
-                <div className="flex flex-col h-full">
+                <div className="flex flex-col" style={{ height: '100%' }}>
                   {posts.length > 1 && (
-                    <div className="flex flex-col h-full justify-between gap-4">
+                    <div className="flex flex-col h-full" style={{ gap: '1rem' }}>
                       {posts.slice(1, 4).map((post, index) => (
-                        <div key={post.id} className={index < 2 ? 'flex-1 flex' : 'flex'}>
+                        <div key={post.id} style={{ flex: index < 2 ? '1 1 0' : '0 0 auto' }}>
                           <SecondaryArticleCard post={post} />
                         </div>
                       ))}
