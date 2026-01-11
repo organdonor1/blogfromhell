@@ -35,7 +35,7 @@ const sectionNames: Record<string, string> = {
   opinion: 'Opinion',
 };
 
-export default function SectionPage() {
+function SectionPageContent() {
   const params = useParams();
   const searchParams = useSearchParams();
   const slug = params?.slug as string;
@@ -126,7 +126,7 @@ export default function SectionPage() {
           <div className="text-center py-12 text-gray-600">Loading...</div>
         ) : (
           <>
-            {currentPage === 1 && displayFeatured ? (
+            {displayFeatured ? (
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-12">
                 {/* Main Content - Featured Article */}
                 <div className="lg:col-span-2">
