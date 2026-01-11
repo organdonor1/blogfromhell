@@ -30,26 +30,27 @@ export default function SecondaryArticleCard({ post }: SecondaryArticleCardProps
           className="mb-3 relative bg-gray-200" 
           style={{ 
             width: '100%', 
-            flex: '0 1 auto',
+            flex: '0 1 30%', // Allow image to shrink, max 30% of container
             minHeight: 0,
             maxHeight: '40%',
-            paddingBottom: '56.25%', // 16:9 aspect ratio
             position: 'relative',
             overflow: 'hidden'
           }}
         >
-          <Image
-            src={post.image_url}
-            alt={post.title || ''}
-            fill
-            className="object-cover group-hover:scale-105 transition-transform"
-            sizes="(max-width: 768px) 100vw, 33vw"
-            style={{ objectFit: 'cover' }}
-          />
+          <div style={{ width: '100%', height: '100%', position: 'relative', paddingBottom: '56.25%' }}>
+            <Image
+              src={post.image_url}
+              alt={post.title || ''}
+              fill
+              className="object-cover group-hover:scale-105 transition-transform"
+              sizes="(max-width: 768px) 100vw, 33vw"
+              style={{ objectFit: 'cover', position: 'absolute', top: 0, left: 0 }}
+            />
+          </div>
         </div>
       )}
       
-      <div className="flex flex-col flex-1 min-h-0" style={{ overflow: 'hidden', flex: '1 1 auto' }}>
+      <div className="flex flex-col flex-1 min-h-0" style={{ overflow: 'hidden', flex: '1 1 auto', minHeight: 0 }}>
         {post.section && (
           <div className="mb-2 flex-shrink-0">
             <span className="inline-block bg-black text-white text-xs font-bold uppercase tracking-wider px-2 py-1">

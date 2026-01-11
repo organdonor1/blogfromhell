@@ -176,7 +176,8 @@ export default function HeightMatchedArticles({ featuredPost, secondaryPosts }: 
                   maxHeight: index < 2 ? '100%' : 'none',
                   overflow: 'hidden',
                   display: 'flex',
-                  flexDirection: 'column'
+                  flexDirection: 'column',
+                  height: index < 2 ? '100%' : 'auto'
                 }}
               >
                 <SecondaryArticleCard post={post} />
