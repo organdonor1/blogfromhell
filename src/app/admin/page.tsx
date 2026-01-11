@@ -170,7 +170,7 @@ export default function Admin() {
 
       const postDataToSave = {
         ...formData,
-        content: formData.content.trim() || null,
+        content: formData.content ? formData.content.trim() || null : null,
         image_url: imageUrl || null,
       };
 
