@@ -18,12 +18,15 @@ interface Post {
   id: string;
   title: string;
   excerpt: string | null;
-  content: string;
+  content: string | null;
   type: string;
+  section: string | null;
   read_time: string | null;
   published: boolean;
   created_at: string;
   image_url: string | null;
+  featured: boolean | null;
+  trending: boolean | null;
 }
 
 interface Subscriber {
@@ -49,9 +52,12 @@ export default function Admin() {
     excerpt: '',
     content: '',
     type: 'news',
+    section: '',
     read_time: '',
     published: false,
     image_url: '',
+    featured: false,
+    trending: false,
   });
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
@@ -172,6 +178,9 @@ export default function Admin() {
         ...formData,
         content: formData.content ? formData.content.trim() || null : null,
         image_url: imageUrl || null,
+        section: formData.section || null,
+        featured: formData.featured || false,
+        trending: formData.trending || false,
       };
 
       if (editingPost) {
@@ -331,11 +340,14 @@ export default function Admin() {
     setFormData({
       title: post.title,
       excerpt: post.excerpt || '',
-      content: post.content,
+      content: post.content || '',
       type: post.type,
+      section: post.section || '',
       read_time: post.read_time || '',
       published: post.published,
       image_url: post.image_url || '',
+      featured: post.featured || false,
+      trending: post.trending || false,
     });
     setImageFile(null);
     setImagePreview(post.image_url || null);
@@ -348,9 +360,12 @@ export default function Admin() {
       excerpt: '',
       content: '',
       type: 'news',
+      section: '',
       read_time: '',
       published: false,
       image_url: '',
+      featured: false,
+      trending: false,
     });
     setImageFile(null);
     setImagePreview(null);
@@ -469,6 +484,23 @@ export default function Admin() {
                 </div>
 
                 <div>
+                  <Label>Section (optional)</Label>
+                  <Select value={formData.section} onValueChange={(v) => setFormData({ ...formData, section: v })}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select a section" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="">None</SelectItem>
+                      <SelectItem value="News">News</SelectItem>
+                      <SelectItem value="Local">Local</SelectItem>
+                      <SelectItem value="Sports">Sports</SelectItem>
+                      <SelectItem value="Entertainment">Entertainment</SelectItem>
+                      <SelectItem value="Opinion">Opinion</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div>
                   <Label>Image (optional)</Label>
                   <div className="space-y-2">
                     {imagePreview && (
@@ -555,6 +587,22 @@ export default function Admin() {
                     rows={10}
                     placeholder="Post content... (optional)"
                   />
+                </div>
+
+                <div className="flex items-center gap-2">
+                  <Switch
+                    checked={formData.featured}
+                    onCheckedChange={(v) => setFormData({ ...formData, featured: v })}
+                  />
+                  <Label>Featured (shows as main article)</Label>
+                </div>
+
+                <div className="flex items-center gap-2">
+                  <Switch
+                    checked={formData.trending}
+                    onCheckedChange={(v) => setFormData({ ...formData, trending: v })}
+                  />
+                  <Label>Trending (shows in sidebar)</Label>
                 </div>
 
                 <div className="flex items-center gap-2">

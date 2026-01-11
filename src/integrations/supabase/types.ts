@@ -37,11 +37,14 @@ export type Database = {
           content: string | null
           created_at: string
           excerpt: string | null
+          featured: boolean | null
           id: string
           image_url: string | null
           published: boolean
           read_time: string | null
+          section: string | null
           title: string
+          trending: boolean | null
           type: string
           updated_at: string
         }
@@ -49,11 +52,14 @@ export type Database = {
           content?: string | null
           created_at?: string
           excerpt?: string | null
+          featured?: boolean | null
           id?: string
           image_url?: string | null
           published?: boolean
           read_time?: string | null
+          section?: string | null
           title: string
+          trending?: boolean | null
           type: string
           updated_at?: string
         }
@@ -61,11 +67,14 @@ export type Database = {
           content?: string | null
           created_at?: string
           excerpt?: string | null
+          featured?: boolean | null
           id?: string
           image_url?: string | null
           published?: boolean
           read_time?: string | null
+          section?: string | null
           title?: string
+          trending?: boolean | null
           type?: string
           updated_at?: string
         }
