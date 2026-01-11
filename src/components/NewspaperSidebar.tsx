@@ -1,3 +1,4 @@
+import React from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 
@@ -63,26 +64,7 @@ export default function NewspaperSidebar({ trendingPosts = [], adSpace }: Newspa
       )}
 
       {/* Ad Space */}
-      {adSpace || (
-          <div key={ad.id} className="border-4 border-black bg-gray-100 p-6 min-h-[300px] flex items-center justify-center">
-            {ad.link_url ? (
-              <Link href={ad.link_url} target="_blank" rel="noopener noreferrer" className="block w-full h-full">
-                <img
-                  src={ad.image_url}
-                  alt={ad.title || 'Advertisement'}
-                  className="w-full h-full object-contain"
-                />
-              </Link>
-            ) : (
-              <img
-                src={ad.image_url}
-                alt={ad.title || 'Advertisement'}
-                className="w-full h-full object-contain"
-              />
-            )}
-          </div>
-        )
-      ) : adSpace ? (
+      {adSpace ? (
         <div className="border-4 border-black bg-gray-100 p-6 min-h-[300px] flex items-center justify-center">
           {adSpace}
         </div>
