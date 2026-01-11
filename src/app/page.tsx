@@ -66,7 +66,7 @@ function IndexContent() {
           .order('created_at', { ascending: false })
           .limit(5);
 
-        setTrendingPosts(trendingData || []);
+        setTrendingPosts(Array.isArray(trendingData) ? trendingData : []);
 
         // Fetch regular posts (exclude featured)
         const { data: postsData } = await supabase
@@ -76,7 +76,7 @@ function IndexContent() {
           .neq('featured', true)
           .order('created_at', { ascending: false });
 
-        setPosts(postsData || []);
+        setPosts(Array.isArray(postsData) ? postsData : []);
       } catch (error) {
         console.error('Error fetching posts:', error);
         setPosts([]);

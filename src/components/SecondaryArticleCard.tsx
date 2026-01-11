@@ -15,20 +15,25 @@ interface SecondaryArticleCardProps {
 }
 
 export default function SecondaryArticleCard({ post }: SecondaryArticleCardProps) {
+  if (!post || !post.id) {
+    return null;
+  }
+
   return (
-    <Link href={`/post/${post.id}`} className="block group border-b-2 border-black pb-4 last:border-0 h-full flex flex-col" style={{ minHeight: 0 }}>
+    <Link href={`/post/${post.id}`} className="block group border-b-2 border-black pb-4 last:border-0 h-full flex flex-col" style={{ minHeight: 0, height: '100%' }}>
       {post.image_url && (
-        <div className="mb-3 aspect-video relative overflow-hidden bg-gray-200 flex-shrink-0">
+        <div className="mb-3 relative overflow-hidden bg-gray-200 flex-shrink-0" style={{ aspectRatio: '16/9', maxHeight: '40%' }}>
           <Image
             src={post.image_url}
-            alt={post.title}
+            alt={post.title || ''}
             fill
             className="object-cover group-hover:scale-105 transition-transform"
+            sizes="(max-width: 768px) 100vw, 33vw"
           />
         </div>
       )}
       
-      <div className="flex flex-col flex-1 min-h-0">
+      <div className="flex flex-col flex-1 min-h-0" style={{ overflow: 'hidden' }}>
         {post.section && (
           <div className="mb-2 flex-shrink-0">
             <span className="inline-block bg-black text-white text-xs font-bold uppercase tracking-wider px-2 py-1">
@@ -37,8 +42,14 @@ export default function SecondaryArticleCard({ post }: SecondaryArticleCardProps
           </div>
         )}
         
-        <h3 className="text-lg md:text-xl font-black text-black group-hover:underline leading-tight flex-1 overflow-hidden line-clamp-3" style={{ fontFamily: 'Georgia, serif', display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical' }}>
-          {post.title}
+        <h3 className="text-lg md:text-xl font-black text-black group-hover:underline leading-tight flex-1 overflow-hidden" style={{ 
+          fontFamily: 'Georgia, serif',
+          display: '-webkit-box',
+          WebkitLineClamp: 3,
+          WebkitBoxOrient: 'vertical',
+          textOverflow: 'ellipsis'
+        }}>
+          {post.title || ''}
         </h3>
       </div>
     </Link>

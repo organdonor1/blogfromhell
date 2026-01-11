@@ -24,6 +24,11 @@ export default function HeightMatchedArticles({ featuredPost, secondaryPosts }: 
   const secondaryRef = useRef<HTMLDivElement>(null);
   const [isMounted, setIsMounted] = useState(false);
 
+  // Safety check
+  if (!featuredPost || !secondaryPosts || secondaryPosts.length === 0) {
+    return null;
+  }
+
   useEffect(() => {
     setIsMounted(true);
   }, []);
@@ -34,35 +39,55 @@ export default function HeightMatchedArticles({ featuredPost, secondaryPosts }: 
     const matchHeights = () => {
       try {
         if (!featuredRef.current || !secondaryRef.current) return;
-        if (window.innerWidth < 1024) return; // Only on desktop
+        if (window.innerWidth < 1024) {
+          // Reset on mobile
+          secondaryRef.current.style.maxHeight = '';
+          secondaryRef.current.style.overflow = '';
+          return;
+        }
 
         const featuredHeight = featuredRef.current.offsetHeight;
         if (featuredHeight > 0) {
+          // Set max-height to force shrinking
           secondaryRef.current.style.maxHeight = `${featuredHeight}px`;
           secondaryRef.current.style.overflow = 'hidden';
+          secondaryRef.current.style.display = 'flex';
+          secondaryRef.current.style.flexDirection = 'column';
         }
       } catch (error) {
         console.error('Error matching heights:', error);
       }
     };
 
-    // Initial match
-    const timeoutId = setTimeout(matchHeights, 100);
+    // Initial match with multiple attempts to ensure DOM is ready
+    const timeoutId1 = setTimeout(matchHeights, 50);
+    const timeoutId2 = setTimeout(matchHeights, 200);
+    const timeoutId3 = setTimeout(matchHeights, 500);
 
     // Watch for resize
-    const resizeObserver = new ResizeObserver(() => {
-      matchHeights();
-    });
+    let resizeObserver: ResizeObserver | null = null;
+    try {
+      resizeObserver = new ResizeObserver(() => {
+        matchHeights();
+      });
 
-    if (featuredRef.current) {
-      resizeObserver.observe(featuredRef.current);
+      if (featuredRef.current) {
+        resizeObserver.observe(featuredRef.current);
+      }
+    } catch (e) {
+      // ResizeObserver might not be available
+      console.warn('ResizeObserver not available');
     }
 
     window.addEventListener('resize', matchHeights);
 
     return () => {
-      clearTimeout(timeoutId);
-      resizeObserver.disconnect();
+      clearTimeout(timeoutId1);
+      clearTimeout(timeoutId2);
+      clearTimeout(timeoutId3);
+      if (resizeObserver) {
+        resizeObserver.disconnect();
+      }
       window.removeEventListener('resize', matchHeights);
     };
   }, [isMounted, featuredPost, secondaryPosts]);
@@ -78,17 +103,19 @@ export default function HeightMatchedArticles({ featuredPost, secondaryPosts }: 
       <div 
         className="flex flex-col" 
         ref={secondaryRef}
-        style={{ minHeight: 0 }}
+        style={{ minHeight: 0, height: '100%' }}
       >
-        <div className="flex flex-col h-full" style={{ gap: '1rem', minHeight: 0 }}>
+        <div className="flex flex-col h-full" style={{ gap: '1rem', minHeight: 0, height: '100%' }}>
           {secondaryPosts.slice(0, 3).map((post, index) => (
             <div 
               key={post.id} 
               style={{ 
-                flex: index < 2 ? '1 1 0%' : '0 0 auto', 
+                flex: index < 2 ? '1 1 0%' : '0 1 auto', 
                 minHeight: 0, 
+                maxHeight: index < 2 ? '100%' : 'none',
                 display: 'flex', 
-                flexDirection: 'column' 
+                flexDirection: 'column',
+                overflow: 'hidden'
               }}
             >
               <SecondaryArticleCard post={post} />

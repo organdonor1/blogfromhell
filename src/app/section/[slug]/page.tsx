@@ -94,7 +94,7 @@ function SectionPageContent() {
           console.error('Error fetching posts:', postsError);
           setPosts([]);
         } else {
-          setPosts(postsData || []);
+          setPosts(Array.isArray(postsData) ? postsData : []);
         }
       } catch (error) {
         console.error('Error fetching posts:', error);

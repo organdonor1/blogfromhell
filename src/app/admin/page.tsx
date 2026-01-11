@@ -201,13 +201,13 @@ export default function Admin() {
       }
 
       const postDataToSave: any = {
-        title: formData.title,
-        excerpt: formData.excerpt || null,
-        type: formData.type,
-        read_time: formData.read_time || null,
-        published: formData.published,
+        title: formData.title || '',
+        excerpt: (formData.excerpt && typeof formData.excerpt === 'string') ? formData.excerpt.trim() : null,
+        type: formData.type || 'news',
+        read_time: (formData.read_time && typeof formData.read_time === 'string') ? formData.read_time.trim() : null,
+        published: Boolean(formData.published),
         image_url: imageUrl || null,
-        section: (formData.section && formData.section.trim()) ? formData.section.trim() : null,
+        section: (formData.section && typeof formData.section === 'string' && formData.section.trim()) ? formData.section.trim() : null,
         featured: Boolean(formData.featured),
         trending: Boolean(formData.trending),
       };
