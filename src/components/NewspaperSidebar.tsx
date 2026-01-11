@@ -63,8 +63,7 @@ export default function NewspaperSidebar({ trendingPosts = [], adSpace }: Newspa
       )}
 
       {/* Ad Space */}
-      {ads.length > 0 ? (
-        ads.map((ad) => (
+      {adSpace || (
           <div key={ad.id} className="border-4 border-black bg-gray-100 p-6 min-h-[300px] flex items-center justify-center">
             {ad.link_url ? (
               <Link href={ad.link_url} target="_blank" rel="noopener noreferrer" className="block w-full h-full">
@@ -82,7 +81,7 @@ export default function NewspaperSidebar({ trendingPosts = [], adSpace }: Newspa
               />
             )}
           </div>
-        ))
+        )
       ) : adSpace ? (
         <div className="border-4 border-black bg-gray-100 p-6 min-h-[300px] flex items-center justify-center">
           {adSpace}

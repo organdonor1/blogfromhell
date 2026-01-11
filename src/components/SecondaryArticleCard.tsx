@@ -23,13 +23,15 @@ export default function SecondaryArticleCard({ post }: SecondaryArticleCardProps
     <Link 
       href={`/post/${post.id}`} 
       className="block group border-b-2 border-black pb-4 last:border-0 h-full flex flex-col" 
-      style={{ minHeight: 0, overflow: 'hidden' }}
+      style={{ minHeight: 0, overflow: 'hidden', display: 'flex', flexDirection: 'column' }}
     >
       {post.image_url && (
         <div 
-          className="mb-3 relative bg-gray-200 flex-shrink-0" 
+          className="mb-3 relative bg-gray-200" 
           style={{ 
             width: '100%', 
+            flex: '0 1 auto',
+            minHeight: 0,
             paddingBottom: '56.25%', // 16:9 aspect ratio
             position: 'relative',
             overflow: 'hidden'
@@ -41,11 +43,12 @@ export default function SecondaryArticleCard({ post }: SecondaryArticleCardProps
             fill
             className="object-cover group-hover:scale-105 transition-transform"
             sizes="(max-width: 768px) 100vw, 33vw"
+            style={{ objectFit: 'cover' }}
           />
         </div>
       )}
       
-      <div className="flex flex-col flex-1 min-h-0" style={{ overflow: 'hidden' }}>
+      <div className="flex flex-col flex-1 min-h-0" style={{ overflow: 'hidden', flex: '1 1 auto' }}>
         {post.section && (
           <div className="mb-2 flex-shrink-0">
             <span className="inline-block bg-black text-white text-xs font-bold uppercase tracking-wider px-2 py-1">
@@ -59,11 +62,12 @@ export default function SecondaryArticleCard({ post }: SecondaryArticleCardProps
           style={{ 
             fontFamily: 'Georgia, serif',
             display: '-webkit-box',
-            WebkitLineClamp: 5,
+            WebkitLineClamp: 6,
             WebkitBoxOrient: 'vertical',
             textOverflow: 'ellipsis',
             minHeight: 0,
-            wordBreak: 'break-word'
+            wordBreak: 'break-word',
+            lineHeight: '1.2'
           }}
         >
           {post.title || ''}

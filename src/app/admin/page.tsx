@@ -212,7 +212,7 @@ export default function Admin() {
         read_time: (formData.read_time && typeof formData.read_time === 'string' && formData.read_time.trim()) ? formData.read_time.trim() : null,
         published: Boolean(formData.published),
         image_url: (imageUrl && typeof imageUrl === 'string') ? imageUrl : null,
-        section: (formData.section && typeof formData.section === 'string' && formData.section.trim()) ? formData.section.trim() : null,
+        section: (formData.section && typeof formData.section === 'string' && formData.section.trim() && formData.section !== 'none') ? formData.section.trim() : null,
         featured: Boolean(formData.featured),
         trending: Boolean(formData.trending),
       };

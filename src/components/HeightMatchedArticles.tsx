@@ -47,7 +47,7 @@ export default function HeightMatchedArticles({ featuredPost, secondaryPosts }: 
 
         const featuredHeight = featuredRef.current.offsetHeight;
         if (featuredHeight > 0) {
-          // Set exact height to force the container to match
+          // Set exact height - this forces the container to match
           secondaryRef.current.style.height = `${featuredHeight}px`;
           secondaryRef.current.style.maxHeight = `${featuredHeight}px`;
           
@@ -56,6 +56,7 @@ export default function HeightMatchedArticles({ featuredPost, secondaryPosts }: 
           if (innerContainer) {
             innerContainer.style.height = '100%';
             innerContainer.style.minHeight = '0';
+            innerContainer.style.maxHeight = '100%';
           }
         }
       } catch (error) {
@@ -112,7 +113,7 @@ export default function HeightMatchedArticles({ featuredPost, secondaryPosts }: 
         ref={secondaryRef}
         style={{ minHeight: 0, overflow: 'hidden', position: 'relative' }}
       >
-        <div className="flex flex-col h-full" style={{ gap: '1rem', minHeight: 0, height: '100%' }}>
+        <div className="flex flex-col h-full" style={{ gap: '1rem', minHeight: 0, height: '100%', maxHeight: '100%' }}>
           {secondaryPosts.slice(0, 3).map((post, index) => {
             if (!post || !post.id) return null;
             return (
@@ -123,7 +124,9 @@ export default function HeightMatchedArticles({ featuredPost, secondaryPosts }: 
                   flex: index < 2 ? '1 1 0%' : '0 1 auto', 
                   minHeight: 0,
                   maxHeight: index < 2 ? '100%' : 'none',
-                  overflow: 'hidden'
+                  overflow: 'hidden',
+                  display: 'flex',
+                  flexDirection: 'column'
                 }}
               >
                 <SecondaryArticleCard post={post} />
