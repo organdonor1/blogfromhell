@@ -137,7 +137,7 @@ function SectionPageContent() {
           <div className="text-center py-12 text-gray-600">Loading...</div>
         ) : (
           <>
-            {displayFeatured && secondaryPosts.length > 0 && currentPage === 1 ? (
+            {displayFeatured && secondaryPosts && secondaryPosts.length > 0 && currentPage === 1 ? (
               <>
                 <HeightMatchedArticles 
                   featuredPost={displayFeatured} 

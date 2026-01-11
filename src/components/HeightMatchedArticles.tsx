@@ -48,11 +48,19 @@ export default function HeightMatchedArticles({ featuredPost, secondaryPosts }: 
 
         const featuredHeight = featuredRef.current.offsetHeight;
         if (featuredHeight > 0) {
-          // Set max-height to force shrinking
+          // Set exact height to force shrinking - this makes the container match exactly
+          secondaryRef.current.style.height = `${featuredHeight}px`;
           secondaryRef.current.style.maxHeight = `${featuredHeight}px`;
           secondaryRef.current.style.overflow = 'hidden';
           secondaryRef.current.style.display = 'flex';
           secondaryRef.current.style.flexDirection = 'column';
+          
+          // Also set height on inner container
+          const innerContainer = secondaryRef.current.querySelector('div') as HTMLElement;
+          if (innerContainer) {
+            innerContainer.style.height = '100%';
+            innerContainer.style.minHeight = '0';
+          }
         }
       } catch (error) {
         console.error('Error matching heights:', error);
@@ -103,16 +111,15 @@ export default function HeightMatchedArticles({ featuredPost, secondaryPosts }: 
       <div 
         className="flex flex-col" 
         ref={secondaryRef}
-        style={{ minHeight: 0, height: '100%' }}
+        style={{ minHeight: 0 }}
       >
-        <div className="flex flex-col h-full" style={{ gap: '1rem', minHeight: 0, height: '100%' }}>
+        <div className="flex flex-col" style={{ gap: '1rem', minHeight: 0, height: '100%' }}>
           {secondaryPosts.slice(0, 3).map((post, index) => (
             <div 
               key={post.id} 
               style={{ 
                 flex: index < 2 ? '1 1 0%' : '0 1 auto', 
-                minHeight: 0, 
-                maxHeight: index < 2 ? '100%' : 'none',
+                minHeight: 0,
                 display: 'flex', 
                 flexDirection: 'column',
                 overflow: 'hidden'
