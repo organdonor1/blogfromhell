@@ -1042,7 +1042,7 @@ export default function Admin() {
                 <div>
                   <Label>Content (optional)</Label>
                   <Textarea
-                    value={formData.content}
+                    value={formData.content || ''}
                     onChange={(e) => setFormData({ ...formData, content: e.target.value })}
                     rows={10}
                     placeholder="Post content... (optional)"

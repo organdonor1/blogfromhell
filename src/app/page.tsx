@@ -118,20 +118,18 @@ function IndexContent() {
         ) : (
           <>
             {displayFeatured ? (
-              <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-12" style={{ gridTemplateRows: '1fr' }}>
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-12 lg:grid-rows-[1fr]">
                 {/* Main Content - Featured Article */}
-                <div className="lg:col-span-2">
-                  <div className="h-full">
-                    <FeaturedArticle post={displayFeatured} />
-                  </div>
+                <div className="lg:col-span-2 lg:row-span-1">
+                  <FeaturedArticle post={displayFeatured} />
                 </div>
 
                 {/* Secondary articles with photos */}
-                <div className="flex flex-col" style={{ height: '100%' }}>
+                <div className="lg:row-span-1 flex flex-col">
                   {posts.length > 1 && (
                     <div className="flex flex-col h-full" style={{ gap: '1rem' }}>
                       {posts.slice(1, 4).map((post, index) => (
-                        <div key={post.id} style={{ flex: index < 2 ? '1 1 0' : '0 0 auto' }}>
+                        <div key={post.id} className={index < 2 ? 'flex-1' : ''} style={{ minHeight: 0 }}>
                           <SecondaryArticleCard post={post} />
                         </div>
                       ))}
