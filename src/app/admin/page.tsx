@@ -177,17 +177,17 @@ export default function Admin() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!adminPassword) {
-      toast({ 
-        title: "Not authenticated", 
-        variant: "destructive" 
-      });
-      return;
-    }
-
-    setIsLoading(true);
-
+    
     try {
+      if (!adminPassword) {
+        toast({ 
+          title: "Not authenticated", 
+          variant: "destructive" 
+        });
+        return;
+      }
+
+      setIsLoading(true);
       // Upload image if a new one was selected
       let imageUrl = formData.image_url;
       if (imageFile) {
@@ -201,12 +201,12 @@ export default function Admin() {
       }
 
       const postDataToSave: any = {
-        title: formData.title || '',
-        excerpt: (formData.excerpt && typeof formData.excerpt === 'string') ? formData.excerpt.trim() : null,
-        type: formData.type || 'news',
-        read_time: (formData.read_time && typeof formData.read_time === 'string') ? formData.read_time.trim() : null,
+        title: (formData.title && typeof formData.title === 'string') ? formData.title.trim() : '',
+        excerpt: (formData.excerpt && typeof formData.excerpt === 'string' && formData.excerpt.trim()) ? formData.excerpt.trim() : null,
+        type: (formData.type && typeof formData.type === 'string') ? formData.type : 'news',
+        read_time: (formData.read_time && typeof formData.read_time === 'string' && formData.read_time.trim()) ? formData.read_time.trim() : null,
         published: Boolean(formData.published),
-        image_url: imageUrl || null,
+        image_url: (imageUrl && typeof imageUrl === 'string') ? imageUrl : null,
         section: (formData.section && typeof formData.section === 'string' && formData.section.trim()) ? formData.section.trim() : null,
         featured: Boolean(formData.featured),
         trending: Boolean(formData.trending),

@@ -2,7 +2,6 @@
 
 import { useState, useEffect, Suspense } from 'react';
 import { useParams, useSearchParams } from 'next/navigation';
-import Link from 'next/link';
 import NewspaperHeader from '../../../components/NewspaperHeader';
 import ArticleList from '../../../components/ArticleList';
 import NewspaperSidebar from '../../../components/NewspaperSidebar';
@@ -42,17 +41,22 @@ function SectionPageContent() {
   const slug = params?.slug as string;
   const sectionName = sectionNames[slug] || slug;
   
-  const page = parseInt(searchParams.get('page') || '1', 10);
+  const page = parseInt(searchParams?.get('page') || '1', 10);
   const currentPage = isNaN(page) || page < 1 ? 1 : page;
   
   const [posts, setPosts] = useState<Post[]>([]);
   const [featuredPost, setFeaturedPost] = useState<Post | null>(null);
   const [trendingPosts, setTrendingPosts] = useState<Post[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchPosts = async () => {
+      if (!slug) return;
+      
       setIsLoading(true);
+      setError(null);
+      
       try {
         // Fetch featured post for this section
         const { data: featuredData, error: featuredError } = await supabase
@@ -65,14 +69,18 @@ function SectionPageContent() {
           .limit(1)
           .maybeSingle();
 
-        if (!featuredError && featuredData) {
+        if (featuredError) {
+          console.error('Error fetching featured post:', featuredError);
+        }
+
+        if (featuredData) {
           setFeaturedPost(featuredData);
         } else {
           setFeaturedPost(null);
         }
 
         // Fetch trending posts
-        const { data: trendingData } = await supabase
+        const { data: trendingData, error: trendingError } = await supabase
           .from('posts')
           .select('*')
           .eq('published', true)
@@ -80,7 +88,11 @@ function SectionPageContent() {
           .order('created_at', { ascending: false })
           .limit(5);
 
-        setTrendingPosts(trendingData || []);
+        if (trendingError) {
+          console.error('Error fetching trending posts:', trendingError);
+        }
+
+        setTrendingPosts(Array.isArray(trendingData) ? trendingData : []);
 
         // Fetch all posts for this section
         const { data: postsData, error: postsError } = await supabase
@@ -92,12 +104,14 @@ function SectionPageContent() {
 
         if (postsError) {
           console.error('Error fetching posts:', postsError);
+          setError('Failed to load posts');
           setPosts([]);
         } else {
           setPosts(Array.isArray(postsData) ? postsData : []);
         }
-      } catch (error) {
-        console.error('Error fetching posts:', error);
+      } catch (err: any) {
+        console.error('Error fetching posts:', err);
+        setError(err?.message || 'An error occurred');
         setPosts([]);
         setFeaturedPost(null);
         setTrendingPosts([]);
@@ -106,20 +120,30 @@ function SectionPageContent() {
       }
     };
 
-    if (slug) {
-      fetchPosts();
-    }
+    fetchPosts();
   }, [slug, sectionName]);
 
   // Pagination logic
   const startIndex = (currentPage - 1) * POSTS_PER_PAGE;
   const displayFeatured = currentPage === 1 ? (featuredPost || (posts.length > 0 ? posts[0] : null)) : null;
   const postsToPaginate = featuredPost && currentPage === 1
-    ? posts.filter(p => p.id !== featuredPost.id)
-    : posts.filter(p => featuredPost ? p.id !== featuredPost.id : true);
+    ? posts.filter(p => p && p.id !== featuredPost.id)
+    : posts.filter(p => featuredPost ? (p && p.id !== featuredPost.id) : true);
   const displayPosts = postsToPaginate.slice(startIndex, startIndex + POSTS_PER_PAGE);
   const totalPages = Math.ceil(postsToPaginate.length / POSTS_PER_PAGE);
-  const secondaryPosts = displayFeatured ? posts.filter(p => p.id !== displayFeatured.id).slice(0, 3) : [];
+  const secondaryPosts = displayFeatured ? posts.filter(p => p && p.id !== displayFeatured.id).slice(0, 3) : [];
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-white">
+        <NewspaperHeader />
+        <main className="container mx-auto px-4 md:px-6 py-8 max-w-7xl">
+          <div className="text-center py-12 text-red-600">Error: {error}</div>
+        </main>
+        <Footer />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-white">

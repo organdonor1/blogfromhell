@@ -20,16 +20,27 @@ export default function SecondaryArticleCard({ post }: SecondaryArticleCardProps
   }
 
   return (
-    <Link href={`/post/${post.id}`} className="block group border-b-2 border-black pb-4 last:border-0 h-full flex flex-col" style={{ minHeight: 0, overflow: 'hidden' }}>
+    <Link 
+      href={`/post/${post.id}`} 
+      className="block group border-b-2 border-black pb-4 last:border-0 h-full flex flex-col" 
+      style={{ minHeight: 0, overflow: 'hidden' }}
+    >
       {post.image_url && (
-        <div className="mb-3 relative bg-gray-200 flex-shrink-0" style={{ width: '100%', paddingBottom: '56.25%', position: 'relative', overflow: 'hidden' }}>
+        <div 
+          className="mb-3 relative bg-gray-200 flex-shrink-0" 
+          style={{ 
+            width: '100%', 
+            paddingBottom: '56.25%', // 16:9 aspect ratio
+            position: 'relative',
+            overflow: 'hidden'
+          }}
+        >
           <Image
             src={post.image_url}
             alt={post.title || ''}
             fill
             className="object-cover group-hover:scale-105 transition-transform"
             sizes="(max-width: 768px) 100vw, 33vw"
-            style={{ objectFit: 'cover', width: '100%', height: '100%' }}
           />
         </div>
       )}
@@ -43,14 +54,18 @@ export default function SecondaryArticleCard({ post }: SecondaryArticleCardProps
           </div>
         )}
         
-        <h3 className="text-lg md:text-xl font-black text-black group-hover:underline leading-tight flex-1 overflow-hidden" style={{ 
-          fontFamily: 'Georgia, serif',
-          display: '-webkit-box',
-          WebkitLineClamp: 4,
-          WebkitBoxOrient: 'vertical',
-          textOverflow: 'ellipsis',
-          minHeight: 0
-        }}>
+        <h3 
+          className="text-lg md:text-xl font-black text-black group-hover:underline leading-tight flex-1 overflow-hidden" 
+          style={{ 
+            fontFamily: 'Georgia, serif',
+            display: '-webkit-box',
+            WebkitLineClamp: 5,
+            WebkitBoxOrient: 'vertical',
+            textOverflow: 'ellipsis',
+            minHeight: 0,
+            wordBreak: 'break-word'
+          }}
+        >
           {post.title || ''}
         </h3>
       </div>

@@ -43,35 +43,24 @@ export default function HeightMatchedArticles({ featuredPost, secondaryPosts }: 
           // Reset on mobile
           secondaryRef.current.style.height = '';
           secondaryRef.current.style.maxHeight = '';
-          secondaryRef.current.style.overflow = '';
           return;
         }
 
         const featuredHeight = featuredRef.current.offsetHeight;
         if (featuredHeight > 0) {
-          // Set exact height to force shrinking - this makes the container match exactly
+          // Set exact height - this forces the container to match
           secondaryRef.current.style.height = `${featuredHeight}px`;
           secondaryRef.current.style.maxHeight = `${featuredHeight}px`;
-          secondaryRef.current.style.overflow = 'hidden';
-          secondaryRef.current.style.display = 'flex';
-          secondaryRef.current.style.flexDirection = 'column';
-          
-          // Also set height on inner container
-          const innerContainer = secondaryRef.current.querySelector('div') as HTMLElement;
-          if (innerContainer) {
-            innerContainer.style.height = '100%';
-            innerContainer.style.minHeight = '0';
-          }
         }
       } catch (error) {
         console.error('Error matching heights:', error);
       }
     };
 
-    // Initial match with multiple attempts to ensure DOM is ready
-    const timeoutId1 = setTimeout(matchHeights, 50);
-    const timeoutId2 = setTimeout(matchHeights, 200);
-    const timeoutId3 = setTimeout(matchHeights, 500);
+    // Multiple timeouts to ensure DOM is ready
+    const timeoutId1 = setTimeout(matchHeights, 100);
+    const timeoutId2 = setTimeout(matchHeights, 300);
+    const timeoutId3 = setTimeout(matchHeights, 600);
 
     // Watch for resize
     let resizeObserver: ResizeObserver | null = null;
@@ -84,7 +73,6 @@ export default function HeightMatchedArticles({ featuredPost, secondaryPosts }: 
         resizeObserver.observe(featuredRef.current);
       }
     } catch (e) {
-      // ResizeObserver might not be available
       console.warn('ResizeObserver not available');
     }
 
@@ -108,21 +96,20 @@ export default function HeightMatchedArticles({ featuredPost, secondaryPosts }: 
         <FeaturedArticle post={featuredPost} />
       </div>
 
-      {/* Secondary articles with photos */}
+      {/* Secondary articles with photos - this container will be height-constrained */}
       <div 
         className="flex flex-col" 
         ref={secondaryRef}
-        style={{ minHeight: 0 }}
+        style={{ minHeight: 0, overflow: 'hidden' }}
       >
-        <div className="flex flex-col" style={{ gap: '1rem', minHeight: 0, height: '100%' }}>
+        <div className="flex flex-col h-full" style={{ gap: '1rem', minHeight: 0 }}>
           {secondaryPosts.slice(0, 3).map((post, index) => (
             <div 
-              key={post.id} 
+              key={post?.id || index} 
+              className="flex flex-col"
               style={{ 
                 flex: index < 2 ? '1 1 0%' : '0 1 auto', 
                 minHeight: 0,
-                display: 'flex', 
-                flexDirection: 'column',
                 overflow: 'hidden'
               }}
             >
