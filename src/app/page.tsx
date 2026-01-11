@@ -112,14 +112,15 @@ function IndexContent() {
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-12">
                 {/* Main Content - Featured Article */}
                 <div className="lg:col-span-2">
-                  <FeaturedArticle post={displayFeatured} />
-                  
+                  <div className="h-full">
+                    <FeaturedArticle post={displayFeatured} />
+                  </div>
                 </div>
 
                 {/* Secondary articles with photos */}
-                <div>
+                <div className="flex flex-col">
                   {posts.length > 1 && (
-                    <div>
+                    <div className="flex flex-col gap-4 h-full">
                       {posts.slice(1, 4).map((post) => (
                         <SecondaryArticleCard key={post.id} post={post} />
                       ))}
