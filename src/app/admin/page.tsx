@@ -35,6 +35,17 @@ interface Subscriber {
   subscribed_at: string;
 }
 
+interface Ad {
+  id: string;
+  title: string | null;
+  image_url: string;
+  link_url: string | null;
+  position: string;
+  active: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
 export default function Admin() {
   const [password, setPassword] = useState('');
   const [adminPassword, setAdminPassword] = useState('');
@@ -42,9 +53,13 @@ export default function Admin() {
   const [isLoading, setIsLoading] = useState(false);
   const [posts, setPosts] = useState<Post[]>([]);
   const [subscribers, setSubscribers] = useState<Subscriber[]>([]);
+  const [ads, setAds] = useState<Ad[]>([]);
   const [showSubscribers, setShowSubscribers] = useState(false);
+  const [showAds, setShowAds] = useState(false);
   const [editingPost, setEditingPost] = useState<Post | null>(null);
+  const [editingAd, setEditingAd] = useState<Ad | null>(null);
   const [showForm, setShowForm] = useState(false);
+  const [showAdForm, setShowAdForm] = useState(false);
   const { toast } = useToast();
 
   const [formData, setFormData] = useState({
@@ -62,6 +77,17 @@ export default function Admin() {
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [uploadingImage, setUploadingImage] = useState(false);
+  
+  const [adFormData, setAdFormData] = useState({
+    title: '',
+    image_url: '',
+    link_url: '',
+    position: 'sidebar',
+    active: true,
+  });
+  const [adImageFile, setAdImageFile] = useState<File | null>(null);
+  const [adImagePreview, setAdImagePreview] = useState<string | null>(null);
+  const [uploadingAdImage, setUploadingAdImage] = useState(false);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -178,9 +204,9 @@ export default function Admin() {
         ...formData,
         content: formData.content ? formData.content.trim() || null : null,
         image_url: imageUrl || null,
-        section: formData.section || null,
-        featured: formData.featured || false,
-        trending: formData.trending || false,
+        section: formData.section && formData.section.trim() ? formData.section.trim() : null,
+        featured: formData.featured === true,
+        trending: formData.trending === true,
       };
 
       if (editingPost) {
@@ -373,6 +399,239 @@ export default function Admin() {
     setShowForm(false);
   };
 
+  const loadAds = async () => {
+    if (!adminPassword) {
+      toast({ 
+        title: "Not authenticated", 
+        variant: "destructive" 
+      });
+      return;
+    }
+
+    try {
+      const response = await fetch('/api/admin/ads', {
+        headers: {
+          'x-admin-password': adminPassword,
+        },
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || 'Failed to load ads');
+      }
+
+      const { ads: adsData } = await response.json();
+      setAds(adsData || []);
+      setShowAds(true);
+    } catch (error: any) {
+      toast({ 
+        title: "Failed to load ads", 
+        description: error.message,
+        variant: "destructive" 
+      });
+    }
+  };
+
+  const handleAdImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setAdImageFile(file);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setAdImagePreview(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const uploadAdImage = async (): Promise<string | null> => {
+    if (!adImageFile) {
+      return adFormData.image_url || null;
+    }
+
+    if (!adminPassword) {
+      toast({
+        title: "Not authenticated",
+        variant: "destructive",
+      });
+      return null;
+    }
+
+    setUploadingAdImage(true);
+    try {
+      const formData = new FormData();
+      formData.append('file', adImageFile);
+
+      const response = await fetch('/api/admin/upload', {
+        method: 'POST',
+        headers: {
+          'x-admin-password': adminPassword,
+        },
+        body: formData,
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || 'Failed to upload image');
+      }
+
+      const { url } = await response.json();
+      return url;
+    } catch (error: any) {
+      toast({
+        title: "Failed to upload image",
+        description: error.message,
+        variant: "destructive",
+      });
+      return null;
+    } finally {
+      setUploadingAdImage(false);
+    }
+  };
+
+  const handleAdSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!adminPassword) {
+      toast({ 
+        title: "Not authenticated", 
+        variant: "destructive" 
+      });
+      return;
+    }
+
+    setIsLoading(true);
+
+    try {
+      let imageUrl = adFormData.image_url;
+      if (adImageFile) {
+        const uploadedUrl = await uploadAdImage();
+        if (uploadedUrl) {
+          imageUrl = uploadedUrl;
+        } else {
+          setIsLoading(false);
+          return;
+        }
+      }
+
+      const adDataToSave = {
+        ...adFormData,
+        image_url: imageUrl,
+        link_url: adFormData.link_url || null,
+      };
+
+      if (editingAd) {
+        const response = await fetch('/api/admin/ads', {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            'x-admin-password': adminPassword,
+          },
+          body: JSON.stringify({
+            adId: editingAd.id,
+            adData: adDataToSave,
+          }),
+        });
+
+        if (!response.ok) {
+          const error = await response.json();
+          throw new Error(error.error || 'Failed to update ad');
+        }
+
+        toast({ title: "Ad updated!" });
+      } else {
+        const response = await fetch('/api/admin/ads', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'x-admin-password': adminPassword,
+          },
+          body: JSON.stringify(adDataToSave),
+        });
+
+        if (!response.ok) {
+          const error = await response.json();
+          throw new Error(error.error || 'Failed to create ad');
+        }
+
+        toast({ title: "Ad created!" });
+      }
+      
+      resetAdForm();
+      loadAds();
+    } catch (error: any) {
+      toast({ 
+        title: "Failed to save ad", 
+        description: error.message,
+        variant: "destructive" 
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleAdDelete = async (id: string) => {
+    if (!adminPassword) {
+      toast({ 
+        title: "Not authenticated", 
+        variant: "destructive" 
+      });
+      return;
+    }
+
+    if (!confirm('Are you sure you want to delete this ad?')) return;
+    
+    try {
+      const response = await fetch(`/api/admin/ads?id=${id}`, {
+        method: 'DELETE',
+        headers: {
+          'x-admin-password': adminPassword,
+        },
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || 'Failed to delete ad');
+      }
+
+      toast({ title: "Ad deleted!" });
+      loadAds();
+    } catch (error: any) {
+      toast({ 
+        title: "Failed to delete ad",
+        description: error.message,
+        variant: "destructive" 
+      });
+    }
+  };
+
+  const handleAdEdit = (ad: Ad) => {
+    setEditingAd(ad);
+    setAdFormData({
+      title: ad.title || '',
+      image_url: ad.image_url,
+      link_url: ad.link_url || '',
+      position: ad.position,
+      active: ad.active,
+    });
+    setAdImageFile(null);
+    setAdImagePreview(ad.image_url);
+    setShowAdForm(true);
+  };
+
+  const resetAdForm = () => {
+    setAdFormData({
+      title: '',
+      image_url: '',
+      link_url: '',
+      position: 'sidebar',
+      active: true,
+    });
+    setAdImageFile(null);
+    setAdImagePreview(null);
+    setEditingAd(null);
+    setShowAdForm(false);
+  };
+
   if (!isAuthenticated) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background p-6">
@@ -432,6 +691,202 @@ export default function Admin() {
     );
   }
 
+  if (showAds) {
+    return (
+      <div className="min-h-screen bg-background p-6">
+        <div className="max-w-3xl mx-auto">
+          <div className="flex items-center justify-between mb-8">
+            <div className="flex items-center gap-4">
+              <Button variant="ghost" onClick={() => setShowAds(false)}>
+                <ArrowLeft className="w-4 h-4 mr-2" /> Back
+              </Button>
+              <h1 className="text-2xl font-serif">Ad Management</h1>
+            </div>
+            <Button onClick={() => setShowAdForm(true)}>
+              <Plus className="w-4 h-4 mr-2" /> New Ad
+            </Button>
+          </div>
+
+          {showAdForm && (
+            <Card className="mb-8">
+              <CardHeader>
+                <CardTitle>{editingAd ? 'Edit Ad' : 'New Ad'}</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <form onSubmit={handleAdSubmit} className="space-y-4">
+                  <div>
+                    <Label>Title (optional)</Label>
+                    <Input
+                      value={adFormData.title}
+                      onChange={(e) => setAdFormData({ ...adFormData, title: e.target.value })}
+                    />
+                  </div>
+
+                  <div>
+                    <Label>Image</Label>
+                    <div className="space-y-2">
+                      {adImagePreview && (
+                        <div className="relative w-full h-48 rounded-md overflow-hidden border border-border">
+                          <img
+                            src={adImagePreview}
+                            alt="Preview"
+                            className="w-full h-full object-cover"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setAdImageFile(null);
+                              setAdImagePreview(null);
+                              setAdFormData({ ...adFormData, image_url: '' });
+                            }}
+                            className="absolute top-2 right-2 p-1 bg-background/80 rounded-full hover:bg-background transition-colors"
+                          >
+                            <X className="w-4 h-4" />
+                          </button>
+                        </div>
+                      )}
+                      <div className="space-y-2">
+                        <div>
+                          <Label className="text-sm mb-1">Upload Image</Label>
+                          <Input
+                            type="file"
+                            accept="image/*"
+                            onChange={handleAdImageChange}
+                            className="cursor-pointer"
+                            disabled={uploadingAdImage}
+                          />
+                        </div>
+                        <div className="relative">
+                          <div className="absolute inset-0 flex items-center">
+                            <span className="w-full border-t" />
+                          </div>
+                          <div className="relative flex justify-center text-xs uppercase">
+                            <span className="bg-background px-2 text-muted-foreground">Or</span>
+                          </div>
+                        </div>
+                        <div>
+                          <Label className="text-sm mb-1">Image URL</Label>
+                          <Input
+                            type="url"
+                            placeholder="https://example.com/image.jpg"
+                            value={adFormData.image_url}
+                            onChange={(e) => {
+                              setAdFormData({ ...adFormData, image_url: e.target.value });
+                              if (e.target.value) {
+                                setAdImageFile(null);
+                                setAdImagePreview(e.target.value);
+                              } else if (!adImageFile) {
+                                setAdImagePreview(null);
+                              }
+                            }}
+                            disabled={uploadingAdImage}
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div>
+                    <Label>Link URL (optional)</Label>
+                    <Input
+                      type="url"
+                      placeholder="https://example.com"
+                      value={adFormData.link_url}
+                      onChange={(e) => setAdFormData({ ...adFormData, link_url: e.target.value })}
+                    />
+                  </div>
+
+                  <div>
+                    <Label>Position</Label>
+                    <Select value={adFormData.position} onValueChange={(v) => setAdFormData({ ...adFormData, position: v })}>
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="sidebar">Sidebar</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div className="flex items-center gap-2">
+                    <Switch
+                      checked={adFormData.active}
+                      onCheckedChange={(v) => setAdFormData({ ...adFormData, active: v })}
+                    />
+                    <Label>Active</Label>
+                  </div>
+
+                  <div className="flex gap-2">
+                    <Button type="submit" disabled={isLoading}>
+                      {isLoading ? 'Saving...' : 'Save'}
+                    </Button>
+                    <Button type="button" variant="outline" onClick={resetAdForm}>
+                      Cancel
+                    </Button>
+                  </div>
+                </form>
+              </CardContent>
+            </Card>
+          )}
+
+          <div className="space-y-4">
+            {ads.length === 0 ? (
+              <Card>
+                <CardContent className="py-12 text-center text-muted-foreground">
+                  No ads yet. Create your first one!
+                </CardContent>
+              </Card>
+            ) : (
+              ads.map((ad) => (
+                <Card key={ad.id}>
+                  <CardContent className="py-4">
+                    <div className="flex items-start justify-between">
+                      <div className="flex gap-4">
+                        {ad.image_url && (
+                          <div className="w-32 h-32 relative overflow-hidden rounded border border-border">
+                            <img
+                              src={ad.image_url}
+                              alt={ad.title || 'Ad'}
+                              className="w-full h-full object-cover"
+                            />
+                          </div>
+                        )}
+                        <div>
+                          <div className="flex items-center gap-2 mb-1">
+                            <span className={`text-xs px-2 py-0.5 rounded ${ad.active ? 'bg-green-500/10 text-green-700' : 'bg-gray-500/10 text-gray-700'}`}>
+                              {ad.active ? 'Active' : 'Inactive'}
+                            </span>
+                            <span className="text-xs px-2 py-0.5 rounded bg-primary/10 text-primary">
+                              {ad.position}
+                            </span>
+                          </div>
+                          {ad.title && (
+                            <h3 className="font-serif text-lg">{ad.title}</h3>
+                          )}
+                          {ad.link_url && (
+                            <p className="text-sm text-muted-foreground mt-1">{ad.link_url}</p>
+                          )}
+                        </div>
+                      </div>
+                      <div className="flex gap-2">
+                        <Button variant="ghost" size="sm" onClick={() => handleAdEdit(ad)}>
+                          <Edit className="w-4 h-4" />
+                        </Button>
+                        <Button variant="ghost" size="sm" onClick={() => handleAdDelete(ad.id)}>
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))
+            )}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-background p-6">
       <div className="max-w-3xl mx-auto">
@@ -447,6 +902,9 @@ export default function Admin() {
           <div className="flex gap-2">
             <Button variant="outline" onClick={loadSubscribers}>
               <Users className="w-4 h-4 mr-2" /> Subscribers
+            </Button>
+            <Button variant="outline" onClick={loadAds}>
+              <Plus className="w-4 h-4 mr-2" /> Ads
             </Button>
             <Button onClick={() => setShowForm(true)}>
               <Plus className="w-4 h-4 mr-2" /> New Post
@@ -484,13 +942,14 @@ export default function Admin() {
                 </div>
 
                 <div>
-                  <Label>Section (optional)</Label>
+                  <Label>Section *</Label>
+                  <p className="text-xs text-muted-foreground mb-2">Required to appear in section pages (News, Local, Politics, Sports, Entertainment, Opinion)</p>
                   <Select value={formData.section} onValueChange={(v) => setFormData({ ...formData, section: v })}>
                     <SelectTrigger>
                       <SelectValue placeholder="Select a section" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="">None</SelectItem>
+                      <SelectItem value="">None (won't appear in sections)</SelectItem>
                       <SelectItem value="News">News</SelectItem>
                       <SelectItem value="Local">Local</SelectItem>
                       <SelectItem value="Politics">Politics</SelectItem>

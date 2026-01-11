@@ -63,16 +63,40 @@ export default function NewspaperSidebar({ trendingPosts = [], adSpace }: Newspa
       )}
 
       {/* Ad Space */}
-      <div className="border-4 border-black bg-gray-100 p-6 min-h-[300px] flex items-center justify-center">
-        {adSpace || (
+      {ads.length > 0 ? (
+        ads.map((ad) => (
+          <div key={ad.id} className="border-4 border-black bg-gray-100 p-6 min-h-[300px] flex items-center justify-center">
+            {ad.link_url ? (
+              <Link href={ad.link_url} target="_blank" rel="noopener noreferrer" className="block w-full h-full">
+                <img
+                  src={ad.image_url}
+                  alt={ad.title || 'Advertisement'}
+                  className="w-full h-full object-contain"
+                />
+              </Link>
+            ) : (
+              <img
+                src={ad.image_url}
+                alt={ad.title || 'Advertisement'}
+                className="w-full h-full object-contain"
+              />
+            )}
+          </div>
+        ))
+      ) : adSpace ? (
+        <div className="border-4 border-black bg-gray-100 p-6 min-h-[300px] flex items-center justify-center">
+          {adSpace}
+        </div>
+      ) : (
+        <div className="border-4 border-black bg-gray-100 p-6 min-h-[300px] flex items-center justify-center">
           <div className="text-center text-gray-500 text-sm">
             <div className="border-2 border-dashed border-gray-400 p-8">
               <p className="font-bold uppercase tracking-wide">Advertisement</p>
               <p className="text-xs mt-2">300x250</p>
             </div>
           </div>
-        )}
-      </div>
+        </div>
+      )}
     </aside>
   );
 }
