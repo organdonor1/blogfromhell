@@ -22,6 +22,7 @@ interface HeightMatchedArticlesProps {
 export default function HeightMatchedArticles({ featuredPost, secondaryPosts }: HeightMatchedArticlesProps) {
   const featuredRef = useRef<HTMLDivElement>(null);
   const secondaryRef = useRef<HTMLDivElement>(null);
+  const [matchedHeight, setMatchedHeight] = useState<number | null>(null);
   const [isMounted, setIsMounted] = useState(false);
 
   // Safety check
@@ -36,28 +37,17 @@ export default function HeightMatchedArticles({ featuredPost, secondaryPosts }: 
   useEffect(() => {
     if (!isMounted || typeof window === 'undefined') return;
 
-    const matchHeights = () => {
+    const updateHeight = () => {
       try {
         if (!featuredRef.current || !secondaryRef.current) return;
         if (window.innerWidth < 1024) {
-          secondaryRef.current.style.height = '';
-          secondaryRef.current.style.maxHeight = '';
+          setMatchedHeight(null);
           return;
         }
 
         const featuredHeight = featuredRef.current.offsetHeight;
         if (featuredHeight > 0) {
-          // Set exact height - this forces the container to match
-          secondaryRef.current.style.height = `${featuredHeight}px`;
-          secondaryRef.current.style.maxHeight = `${featuredHeight}px`;
-          
-          // Also ensure inner flex container respects the height
-          const innerContainer = secondaryRef.current.firstElementChild as HTMLElement;
-          if (innerContainer) {
-            innerContainer.style.height = '100%';
-            innerContainer.style.minHeight = '0';
-            innerContainer.style.maxHeight = '100%';
-          }
+          setMatchedHeight(featuredHeight);
         }
       } catch (error) {
         console.error('Error matching heights:', error);
@@ -65,16 +55,16 @@ export default function HeightMatchedArticles({ featuredPost, secondaryPosts }: 
     };
 
     // Multiple timeouts to catch different render phases
-    const timeoutId1 = setTimeout(matchHeights, 100);
-    const timeoutId2 = setTimeout(matchHeights, 300);
-    const timeoutId3 = setTimeout(matchHeights, 600);
-    const timeoutId4 = setTimeout(matchHeights, 1000);
+    const timeoutId1 = setTimeout(updateHeight, 100);
+    const timeoutId2 = setTimeout(updateHeight, 300);
+    const timeoutId3 = setTimeout(updateHeight, 600);
+    const timeoutId4 = setTimeout(updateHeight, 1000);
 
     // Watch for resize
     let resizeObserver: ResizeObserver | null = null;
     try {
       resizeObserver = new ResizeObserver(() => {
-        matchHeights();
+        updateHeight();
       });
 
       if (featuredRef.current) {
@@ -84,8 +74,8 @@ export default function HeightMatchedArticles({ featuredPost, secondaryPosts }: 
       console.warn('ResizeObserver not available');
     }
 
-    window.addEventListener('resize', matchHeights);
-    window.addEventListener('load', matchHeights);
+    window.addEventListener('resize', updateHeight);
+    window.addEventListener('load', updateHeight);
 
     return () => {
       clearTimeout(timeoutId1);
@@ -95,8 +85,8 @@ export default function HeightMatchedArticles({ featuredPost, secondaryPosts }: 
       if (resizeObserver) {
         resizeObserver.disconnect();
       }
-      window.removeEventListener('resize', matchHeights);
-      window.removeEventListener('load', matchHeights);
+      window.removeEventListener('resize', updateHeight);
+      window.removeEventListener('load', updateHeight);
     };
   }, [isMounted, featuredPost, secondaryPosts]);
 
@@ -107,13 +97,25 @@ export default function HeightMatchedArticles({ featuredPost, secondaryPosts }: 
         <FeaturedArticle post={featuredPost} />
       </div>
 
-      {/* Secondary articles - this container will be height-constrained */}
+      {/* Secondary articles - constrained to match featured height */}
       <div 
         className="flex flex-col" 
         ref={secondaryRef}
-        style={{ minHeight: 0, overflow: 'hidden', position: 'relative' }}
+        style={{ 
+          minHeight: 0, 
+          overflow: 'hidden',
+          ...(matchedHeight && window.innerWidth >= 1024 ? { height: `${matchedHeight}px`, maxHeight: `${matchedHeight}px` } : {})
+        }}
       >
-        <div className="flex flex-col h-full" style={{ gap: '1rem', minHeight: 0, height: '100%', maxHeight: '100%' }}>
+        <div 
+          className="flex flex-col h-full" 
+          style={{ 
+            gap: '1rem', 
+            minHeight: 0, 
+            height: '100%',
+            ...(matchedHeight && window.innerWidth >= 1024 ? { maxHeight: '100%' } : {})
+          }}
+        >
           {secondaryPosts.slice(0, 3).map((post, index) => {
             if (!post || !post.id) return null;
             return (

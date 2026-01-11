@@ -965,7 +965,7 @@ export default function Admin() {
                       <SelectValue placeholder="Select a section" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="">None (won't appear in sections)</SelectItem>
+                      <SelectItem value="none">None (won't appear in sections)</SelectItem>
                       <SelectItem value="News">News</SelectItem>
                       <SelectItem value="Local">Local</SelectItem>
                       <SelectItem value="Politics">Politics</SelectItem>

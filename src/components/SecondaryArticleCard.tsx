@@ -32,6 +32,7 @@ export default function SecondaryArticleCard({ post }: SecondaryArticleCardProps
             width: '100%', 
             flex: '0 1 auto',
             minHeight: 0,
+            maxHeight: '40%',
             paddingBottom: '56.25%', // 16:9 aspect ratio
             position: 'relative',
             overflow: 'hidden'
