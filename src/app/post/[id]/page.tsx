@@ -39,7 +39,7 @@ export default function PostDetail() {
         .select('*')
         .eq('id', id)
         .eq('published', true)
-        .single();
+        .maybeSingle();
 
       if (error || !data) {
         setNotFound(true);

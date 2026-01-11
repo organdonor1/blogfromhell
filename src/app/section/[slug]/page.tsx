@@ -4,9 +4,9 @@ import { useState, useEffect, Suspense } from 'react';
 import { useParams, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import NewspaperHeader from '../../../components/NewspaperHeader';
-import FeaturedArticle from '../../../components/FeaturedArticle';
 import ArticleList from '../../../components/ArticleList';
 import NewspaperSidebar from '../../../components/NewspaperSidebar';
+import HeightMatchedArticles from '../../../components/HeightMatchedArticles';
 import Footer from '../../../components/footer';
 import Pagination from '../../../components/Pagination';
 import { supabase } from '../../../integrations/supabase/client';
@@ -113,12 +113,13 @@ function SectionPageContent() {
 
   // Pagination logic
   const startIndex = (currentPage - 1) * POSTS_PER_PAGE;
-  const displayFeatured = currentPage === 1 ? (featuredPost || posts[0]) : null;
+  const displayFeatured = currentPage === 1 ? (featuredPost || (posts.length > 0 ? posts[0] : null)) : null;
   const postsToPaginate = featuredPost && currentPage === 1
     ? posts.filter(p => p.id !== featuredPost.id)
     : posts.filter(p => featuredPost ? p.id !== featuredPost.id : true);
   const displayPosts = postsToPaginate.slice(startIndex, startIndex + POSTS_PER_PAGE);
   const totalPages = Math.ceil(postsToPaginate.length / POSTS_PER_PAGE);
+  const secondaryPosts = displayFeatured ? posts.filter(p => p.id !== displayFeatured.id).slice(0, 3) : [];
 
   return (
     <div className="min-h-screen bg-white">
@@ -136,79 +137,41 @@ function SectionPageContent() {
           <div className="text-center py-12 text-gray-600">Loading...</div>
         ) : (
           <>
-            {displayFeatured ? (
-              <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-12">
-                {/* Main Content - Featured Article */}
-                <div className="lg:col-span-2">
-                  <FeaturedArticle post={displayFeatured} />
-                  
-                  {/* Secondary articles */}
-                  {posts.length > 1 && (
-                    <div className="mt-8 space-y-3 border-t-2 border-black pt-6">
-                      {posts
-                        .filter(p => p.id !== displayFeatured.id)
-                        .slice(0, 3)
-                        .map((post) => (
-                          <Link
-                            key={post.id}
-                            href={`/post/${post.id}`}
-                            className="block group"
-                          >
-                            <h3 className="text-xl font-black text-black group-hover:underline leading-tight" style={{ fontFamily: 'Georgia, serif' }}>
-                              {post.title}
-                            </h3>
-                          </Link>
-                        ))}
-                    </div>
-                  )}
+            {displayFeatured && secondaryPosts.length > 0 && currentPage === 1 ? (
+              <>
+                <HeightMatchedArticles 
+                  featuredPost={displayFeatured} 
+                  secondaryPosts={secondaryPosts}
+                />
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-12">
+                  <div className="lg:col-span-2">
+                    <ArticleList posts={displayPosts} showSection={false} />
+                  </div>
+                  <div>
+                    <NewspaperSidebar trendingPosts={trendingPosts} />
+                  </div>
                 </div>
-
-                {/* Sidebar */}
-                <div>
-                  <NewspaperSidebar trendingPosts={trendingPosts} />
-                </div>
-              </div>
+              </>
             ) : (
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-12">
-                {/* Main Content */}
                 <div className="lg:col-span-2">
                   <ArticleList posts={displayPosts} showSection={false} />
                 </div>
-
-                {/* Sidebar */}
                 <div>
                   <NewspaperSidebar trendingPosts={trendingPosts} />
                 </div>
               </div>
             )}
 
-            {/* Article List for page 1 (below featured) or all pages */}
-            {displayFeatured ? (
-              <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                <div className="lg:col-span-2">
-                  <ArticleList posts={displayPosts} showSection={false} />
-                  <Pagination
-                    currentPage={currentPage}
-                    totalPages={totalPages}
-                    basePath={`/section/${slug}`}
-                  />
-                </div>
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+              <div className="lg:col-span-2">
+                <Pagination
+                  currentPage={currentPage}
+                  totalPages={totalPages}
+                  basePath={`/section/${slug}`}
+                />
               </div>
-            ) : (
-              <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                <div className="lg:col-span-2">
-                  <ArticleList posts={displayPosts} showSection={false} />
-                  <Pagination
-                    currentPage={currentPage}
-                    totalPages={totalPages}
-                    basePath={`/section/${slug}`}
-                  />
-                </div>
-                <div>
-                  <NewspaperSidebar trendingPosts={trendingPosts} />
-                </div>
-              </div>
-            )}
+            </div>
           </>
         )}
       </main>

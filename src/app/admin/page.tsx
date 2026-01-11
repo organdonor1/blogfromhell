@@ -374,16 +374,16 @@ export default function Admin() {
   const handleEdit = (post: Post) => {
     setEditingPost(post);
     setFormData({
-      title: post.title,
+      title: post.title || '',
       excerpt: post.excerpt || '',
       content: (post.content && typeof post.content === 'string') ? post.content : '',
-      type: post.type,
+      type: post.type || 'news',
       section: post.section || '',
       read_time: post.read_time || '',
-      published: post.published,
+      published: post.published ?? false,
       image_url: post.image_url || '',
-      featured: post.featured || false,
-      trending: post.trending || false,
+      featured: Boolean(post.featured),
+      trending: Boolean(post.trending),
     });
     setImageFile(null);
     setImagePreview(post.image_url || null);

@@ -1,15 +1,14 @@
 'use client';
 
-import { Suspense, useEffect, useRef } from 'react';
+import { Suspense } from 'react';
 import NewspaperHeader from '../components/NewspaperHeader';
-import FeaturedArticle from '../components/FeaturedArticle';
 import ArticleList from '../components/ArticleList';
 import NewspaperSidebar from '../components/NewspaperSidebar';
-import SecondaryArticleCard from '../components/SecondaryArticleCard';
+import HeightMatchedArticles from '../components/HeightMatchedArticles';
 import Footer from '../components/footer';
 import Pagination from '../components/Pagination';
 import { supabase } from '../integrations/supabase/client';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 
@@ -102,36 +101,7 @@ function IndexContent() {
     ? posts.filter(p => p.id !== featuredPost.id)
     : posts.filter(p => featuredPost ? p.id !== featuredPost.id : true);
   const displayPosts = postsToPaginate.slice(startIndex, startIndex + POSTS_PER_PAGE);
-
-  // Match heights after render - set max-height on secondary to match featured
-  useEffect(() => {
-    if (!isLoading && displayFeatured && featuredRef.current && secondaryRef.current && typeof window !== 'undefined' && window.innerWidth >= 1024) {
-      const matchHeights = () => {
-        try {
-          const featuredHeight = featuredRef.current?.offsetHeight;
-          if (featuredHeight && secondaryRef.current) {
-            secondaryRef.current.style.maxHeight = `${featuredHeight}px`;
-            secondaryRef.current.style.overflow = 'hidden';
-          }
-        } catch (error) {
-          console.error('Error matching heights:', error);
-        }
-      };
-      
-      // Use setTimeout to ensure DOM is fully rendered
-      const timeoutId = setTimeout(matchHeights, 100);
-      const resizeObserver = new ResizeObserver(matchHeights);
-      if (featuredRef.current) {
-        resizeObserver.observe(featuredRef.current);
-      }
-      window.addEventListener('resize', matchHeights);
-      return () => {
-        clearTimeout(timeoutId);
-        resizeObserver.disconnect();
-        window.removeEventListener('resize', matchHeights);
-      };
-    }
-  }, [isLoading, displayFeatured, posts.length]);
+  const secondaryPosts = posts.filter(p => displayFeatured && p.id !== displayFeatured.id).slice(0, 3);
 
   return (
     <div className="min-h-screen bg-white">
@@ -142,30 +112,12 @@ function IndexContent() {
           <div className="text-center py-12 text-gray-600">Loading...</div>
         ) : (
           <>
-            {displayFeatured ? (
-              <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-12">
-                {/* Main Content - Featured Article */}
-                <div className="lg:col-span-2" ref={featuredRef}>
-                  <FeaturedArticle post={displayFeatured} />
-                </div>
-
-                {/* Secondary articles with photos */}
-                <div className="flex flex-col" ref={secondaryRef} style={{ minHeight: 0 }}>
-                  {posts.length > 1 && displayFeatured && (
-                    <div className="flex flex-col h-full" style={{ gap: '1rem', minHeight: 0 }}>
-                      {posts
-                        .filter(p => displayFeatured && p.id !== displayFeatured.id)
-                        .slice(0, 3)
-                        .map((post, index) => (
-                          <div key={post.id} style={{ flex: index < 2 ? '1 1 0%' : '0 0 auto', minHeight: 0, display: 'flex', flexDirection: 'column' }}>
-                            <SecondaryArticleCard post={post} />
-                          </div>
-                        ))}
-                    </div>
-                  )}
-                </div>
-              </div>
-            ) : (
+            {displayFeatured && secondaryPosts.length > 0 ? (
+              <HeightMatchedArticles 
+                featuredPost={displayFeatured} 
+                secondaryPosts={secondaryPosts}
+              />
+            ) : displayFeatured ? (
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-12">
                 {/* Main Content */}
                 <div className="lg:col-span-2">

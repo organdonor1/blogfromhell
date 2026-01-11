@@ -37,7 +37,7 @@ export default function SecondaryArticleCard({ post }: SecondaryArticleCardProps
           </div>
         )}
         
-        <h3 className="text-lg md:text-xl font-black text-black group-hover:underline leading-tight flex-1 overflow-hidden" style={{ fontFamily: 'Georgia, serif' }}>
+        <h3 className="text-lg md:text-xl font-black text-black group-hover:underline leading-tight flex-1 overflow-hidden line-clamp-3" style={{ fontFamily: 'Georgia, serif', display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical' }}>
           {post.title}
         </h3>
       </div>
