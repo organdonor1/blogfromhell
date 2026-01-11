@@ -10,7 +10,6 @@ import Pagination from '../components/Pagination';
 import { supabase } from '../integrations/supabase/client';
 import { useState, useEffect } from 'react';
 import { useSearchParams } from 'next/navigation';
-import Link from 'next/link';
 
 interface Post {
   id: string;
@@ -99,7 +98,9 @@ function IndexContent() {
     ? posts.filter(p => p.id !== featuredPost.id)
     : posts.filter(p => featuredPost ? p.id !== featuredPost.id : true);
   const displayPosts = postsToPaginate.slice(startIndex, startIndex + POSTS_PER_PAGE);
-  const secondaryPosts = posts.filter(p => displayFeatured && p.id !== displayFeatured.id).slice(0, 3);
+  const secondaryPosts = displayFeatured 
+    ? posts.filter(p => p.id !== displayFeatured.id).slice(0, 3)
+    : [];
 
   return (
     <div className="min-h-screen bg-white">
@@ -117,19 +118,15 @@ function IndexContent() {
               />
             ) : displayFeatured ? (
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-12">
-                {/* Main Content */}
                 <div className="lg:col-span-2">
                   <ArticleList posts={displayPosts} />
                 </div>
-
-                {/* Sidebar */}
                 <div>
                   <NewspaperSidebar trendingPosts={trendingPosts} />
                 </div>
               </div>
-            )}
+            ) : null}
 
-            {/* Article List for page 1 (below featured) or all pages */}
             {displayFeatured ? (
               <div>
                 <ArticleList posts={displayPosts} />
