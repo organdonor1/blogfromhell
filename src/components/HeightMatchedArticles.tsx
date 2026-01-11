@@ -114,13 +114,14 @@ export default function HeightMatchedArticles({ featuredPost, secondaryPosts }: 
         ref={secondaryRef}
         style={{ minHeight: 0 }}
       >
-        <div className="flex flex-col" style={{ gap: '1rem', minHeight: 0, height: '100%' }}>
+        <div className="flex flex-col" style={{ gap: '1rem', minHeight: 0, height: '100%', justifyContent: 'flex-start' }}>
           {secondaryPosts.slice(0, 3).map((post, index) => (
             <div 
               key={post.id} 
               style={{ 
                 flex: index < 2 ? '1 1 0%' : '0 1 auto', 
                 minHeight: 0,
+                maxHeight: index < 2 ? '100%' : 'none',
                 display: 'flex', 
                 flexDirection: 'column',
                 overflow: 'hidden'

@@ -20,9 +20,9 @@ export default function SecondaryArticleCard({ post }: SecondaryArticleCardProps
   }
 
   return (
-    <Link href={`/post/${post.id}`} className="block group border-b-2 border-black pb-4 last:border-0 h-full flex flex-col" style={{ minHeight: 0, height: '100%', overflow: 'hidden' }}>
+    <Link href={`/post/${post.id}`} className="block group border-b-2 border-black pb-4 last:border-0 h-full flex flex-col" style={{ minHeight: 0, overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
       {post.image_url && (
-        <div className="mb-3 relative overflow-hidden bg-gray-200" style={{ flex: '0 1 auto', minHeight: 0, maxHeight: '50%' }}>
+        <div className="mb-3 relative bg-gray-200" style={{ flex: '0 1 auto', minHeight: 0, width: '100%', aspectRatio: '16/9', overflow: 'hidden' }}>
           <Image
             src={post.image_url}
             alt={post.title || ''}
@@ -34,7 +34,7 @@ export default function SecondaryArticleCard({ post }: SecondaryArticleCardProps
         </div>
       )}
       
-      <div className="flex flex-col flex-1 min-h-0" style={{ overflow: 'hidden', flex: '1 1 0%' }}>
+      <div className="flex flex-col flex-1 min-h-0" style={{ overflow: 'hidden', flex: '1 1 auto' }}>
         {post.section && (
           <div className="mb-2 flex-shrink-0">
             <span className="inline-block bg-black text-white text-xs font-bold uppercase tracking-wider px-2 py-1">
@@ -55,9 +55,5 @@ export default function SecondaryArticleCard({ post }: SecondaryArticleCardProps
         </h3>
       </div>
     </Link>
-    );
-  } catch (error) {
-    console.error('Error rendering SecondaryArticleCard:', error);
-    return null;
-  }
+  );
 }
