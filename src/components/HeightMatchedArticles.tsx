@@ -41,6 +41,7 @@ export default function HeightMatchedArticles({ featuredPost, secondaryPosts }: 
         if (!featuredRef.current || !secondaryRef.current) return;
         if (window.innerWidth < 1024) {
           // Reset on mobile
+          secondaryRef.current.style.height = '';
           secondaryRef.current.style.maxHeight = '';
           secondaryRef.current.style.overflow = '';
           return;

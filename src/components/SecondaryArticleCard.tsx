@@ -55,5 +55,9 @@ export default function SecondaryArticleCard({ post }: SecondaryArticleCardProps
         </h3>
       </div>
     </Link>
-  );
+    );
+  } catch (error) {
+    console.error('Error rendering SecondaryArticleCard:', error);
+    return null;
+  }
 }
