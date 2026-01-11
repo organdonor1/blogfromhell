@@ -20,21 +20,21 @@ export default function SecondaryArticleCard({ post }: SecondaryArticleCardProps
   }
 
   return (
-    <Link href={`/post/${post.id}`} className="block group border-b-2 border-black pb-4 last:border-0 h-full flex flex-col" style={{ minHeight: 0, overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
+    <Link href={`/post/${post.id}`} className="block group border-b-2 border-black pb-4 last:border-0 h-full flex flex-col" style={{ minHeight: 0, overflow: 'hidden' }}>
       {post.image_url && (
-        <div className="mb-3 relative bg-gray-200" style={{ flex: '0 1 auto', minHeight: 0, width: '100%', aspectRatio: '16/9', overflow: 'hidden' }}>
+        <div className="mb-3 relative bg-gray-200 flex-shrink-0" style={{ width: '100%', paddingBottom: '56.25%', position: 'relative', overflow: 'hidden' }}>
           <Image
             src={post.image_url}
             alt={post.title || ''}
             fill
             className="object-cover group-hover:scale-105 transition-transform"
             sizes="(max-width: 768px) 100vw, 33vw"
-            style={{ objectFit: 'cover' }}
+            style={{ objectFit: 'cover', width: '100%', height: '100%' }}
           />
         </div>
       )}
       
-      <div className="flex flex-col flex-1 min-h-0" style={{ overflow: 'hidden', flex: '1 1 auto' }}>
+      <div className="flex flex-col flex-1 min-h-0" style={{ overflow: 'hidden' }}>
         {post.section && (
           <div className="mb-2 flex-shrink-0">
             <span className="inline-block bg-black text-white text-xs font-bold uppercase tracking-wider px-2 py-1">
