@@ -200,14 +200,25 @@ export default function Admin() {
         }
       }
 
-      const postDataToSave = {
-        ...formData,
-        content: formData.content && typeof formData.content === 'string' ? formData.content.trim() || null : null,
+      const postDataToSave: any = {
+        title: formData.title,
+        excerpt: formData.excerpt || null,
+        type: formData.type,
+        read_time: formData.read_time || null,
+        published: formData.published,
         image_url: imageUrl || null,
-        section: formData.section && formData.section.trim() ? formData.section.trim() : null,
-        featured: formData.featured === true,
-        trending: formData.trending === true,
+        section: (formData.section && formData.section.trim()) ? formData.section.trim() : null,
+        featured: Boolean(formData.featured),
+        trending: Boolean(formData.trending),
       };
+
+      // Handle content safely
+      if (formData.content && typeof formData.content === 'string') {
+        const trimmed = formData.content.trim();
+        postDataToSave.content = trimmed || null;
+      } else {
+        postDataToSave.content = null;
+      }
 
       if (editingPost) {
         const response = await fetch('/api/admin/posts', {

@@ -90,9 +90,20 @@ function IndexContent() {
     fetchPosts();
   }, []);
 
+  // Pagination logic
+  const startIndex = (currentPage - 1) * POSTS_PER_PAGE;
+  const totalPages = Math.ceil(posts.length / POSTS_PER_PAGE);
+
+  // If no featured post, use the first post
+  const displayFeatured = currentPage === 1 ? (featuredPost || posts[0]) : null;
+  const postsToPaginate = featuredPost && currentPage === 1 
+    ? posts.filter(p => p.id !== featuredPost.id)
+    : posts.filter(p => featuredPost ? p.id !== featuredPost.id : true);
+  const displayPosts = postsToPaginate.slice(startIndex, startIndex + POSTS_PER_PAGE);
+
   // Match heights after render
   useEffect(() => {
-    if (featuredRef.current && secondaryRef.current && window.innerWidth >= 1024) {
+    if (displayFeatured && featuredRef.current && secondaryRef.current && window.innerWidth >= 1024) {
       const matchHeights = () => {
         const featuredHeight = featuredRef.current?.offsetHeight;
         if (featuredHeight && secondaryRef.current) {
@@ -100,11 +111,15 @@ function IndexContent() {
         }
       };
       
-      matchHeights();
+      // Use setTimeout to ensure DOM is fully rendered
+      const timeoutId = setTimeout(matchHeights, 100);
       window.addEventListener('resize', matchHeights);
-      return () => window.removeEventListener('resize', matchHeights);
+      return () => {
+        clearTimeout(timeoutId);
+        window.removeEventListener('resize', matchHeights);
+      };
     }
-  }, [isLoading, displayFeatured]);
+  }, [isLoading, displayFeatured, posts]);
 
   // Pagination logic
   const startIndex = (currentPage - 1) * POSTS_PER_PAGE;
