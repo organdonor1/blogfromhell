@@ -2,6 +2,8 @@
 
 ## Database Changes Required
 
+### Posts Table
+
 You need to add the following columns to your `posts` table in Supabase:
 
 1. **`section`** (TEXT, nullable)
@@ -32,6 +34,35 @@ ADD COLUMN IF NOT EXISTS featured BOOLEAN DEFAULT false;
 -- Add trending column
 ALTER TABLE posts 
 ADD COLUMN IF NOT EXISTS trending BOOLEAN DEFAULT false;
+```
+
+### Ads Table
+
+Create a new `ads` table for managing advertisements:
+
+```sql
+CREATE TABLE IF NOT EXISTS ads (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  title TEXT,
+  image_url TEXT NOT NULL,
+  link_url TEXT,
+  position TEXT NOT NULL DEFAULT 'sidebar',
+  active BOOLEAN DEFAULT true,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- Create updated_at trigger
+CREATE OR REPLACE FUNCTION update_updated_at_column()
+RETURNS TRIGGER AS $$
+BEGIN
+    NEW.updated_at = NOW();
+    RETURN NEW;
+END;
+$$ language 'plpgsql';
+
+CREATE TRIGGER update_ads_updated_at BEFORE UPDATE ON ads
+    FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 ```
 
 ## Features Implemented
