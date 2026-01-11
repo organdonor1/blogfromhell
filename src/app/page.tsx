@@ -97,7 +97,7 @@ function IndexContent() {
   const totalPages = Math.ceil(posts.length / POSTS_PER_PAGE);
 
   // If no featured post, use the first post
-  const displayFeatured = currentPage === 1 ? (featuredPost || posts[0]) : null;
+  const displayFeatured = currentPage === 1 ? (featuredPost || (posts.length > 0 ? posts[0] : null)) : null;
   const postsToPaginate = featuredPost && currentPage === 1 
     ? posts.filter(p => p.id !== featuredPost.id)
     : posts.filter(p => featuredPost ? p.id !== featuredPost.id : true);
@@ -145,13 +145,16 @@ function IndexContent() {
 
                 {/* Secondary articles with photos */}
                 <div className="flex flex-col" ref={secondaryRef}>
-                  {posts.length > 1 && (
+                  {posts.length > 1 && displayFeatured && (
                     <div className="flex flex-col h-full" style={{ gap: '1rem' }}>
-                      {posts.slice(1, 4).map((post, index) => (
-                        <div key={post.id} style={{ flex: index < 2 ? '1 1 0%' : '0 0 auto', minHeight: 0 }}>
-                          <SecondaryArticleCard post={post} />
-                        </div>
-                      ))}
+                      {posts
+                        .filter(p => displayFeatured && p.id !== displayFeatured.id)
+                        .slice(0, 3)
+                        .map((post, index) => (
+                          <div key={post.id} style={{ flex: index < 2 ? '1 1 0%' : '0 0 auto', minHeight: 0 }}>
+                            <SecondaryArticleCard post={post} />
+                          </div>
+                        ))}
                     </div>
                   )}
                 </div>
