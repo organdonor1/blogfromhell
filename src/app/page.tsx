@@ -101,7 +101,7 @@ function IndexContent() {
     return currentPage === 1 ? (featuredPost || (posts.length > 0 ? posts[0] : null)) : null;
   }, [currentPage, featuredPost, posts]);
   
-  // Get secondary posts from all posts, excluding featured - memoized to prevent recalculation
+  // Get secondary posts from all posts, excluding featured and trending - memoized to prevent recalculation
   // Keep the last valid value if posts temporarily becomes empty
   const secondaryPosts = useMemo(() => {
     if (!displayFeatured) {
@@ -113,14 +113,22 @@ function IndexContent() {
       // Return the last valid value if we had one, otherwise empty array
       return lastValidSecondaryPostsRef.current;
     }
-    const filtered = posts.filter(p => p && p.id && displayFeatured && p.id !== displayFeatured.id);
+    // Get trending post IDs to exclude from What's New
+    const trendingPostIds = trendingPosts.map(p => p.id);
+    // Filter out featured and trending posts
+    const filtered = posts.filter(p => {
+      if (!p || !p.id) return false;
+      if (displayFeatured && p.id === displayFeatured.id) return false;
+      if (trendingPostIds.includes(p.id)) return false;
+      return true;
+    });
     const result = filtered.slice(0, 3);
     // Store the valid result
     if (result.length > 0) {
       lastValidSecondaryPostsRef.current = result;
     }
     return result;
-  }, [displayFeatured, posts]);
+  }, [displayFeatured, posts, trendingPosts]);
   
   console.log('Display featured:', displayFeatured?.title);
   console.log('Secondary posts count:', secondaryPosts.length);

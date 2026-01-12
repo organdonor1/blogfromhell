@@ -38,7 +38,7 @@ export default function NewspaperHeader() {
         <div className="container mx-auto px-4 py-6">
           <div className="text-center">
             <Link href="/" className="block group">
-              <h1 className="text-6xl md:text-7xl font-black text-black tracking-tight mb-2 group-hover:opacity-80 transition-opacity" style={{ fontFamily: 'Georgia, serif' }}>
+              <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-black text-black tracking-tight mb-2 group-hover:opacity-80 transition-opacity" style={{ fontFamily: 'Georgia, serif' }}>
                 HELLMOUTH
               </h1>
               <p className="text-sm font-semibold text-gray-700 uppercase tracking-widest">

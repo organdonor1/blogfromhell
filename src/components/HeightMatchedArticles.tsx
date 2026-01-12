@@ -1,6 +1,8 @@
 'use client';
 
 import { useEffect, useRef, useState, useMemo } from 'react';
+import Link from 'next/link';
+import Image from 'next/image';
 import FeaturedArticle from './FeaturedArticle';
 import SecondaryArticleCard from './SecondaryArticleCard';
 import NewspaperSidebar from './NewspaperSidebar';
@@ -174,6 +176,45 @@ export default function HeightMatchedArticles({ featuredPost, secondaryPosts, tr
           height: 'auto'
         }}
       >
+        {/* Trending Section - Show first */}
+        {trendingPosts.length > 0 && (
+          <>
+            <div className="bg-black text-white p-4 mb-6">
+              <h2 className="text-xl font-black uppercase tracking-wider" style={{ fontFamily: 'Georgia, serif' }}>
+                Trending
+              </h2>
+            </div>
+            <div className="space-y-6 mb-6">
+              {trendingPosts.map((post) => (
+                <Link
+                  key={post.id}
+                  href={`/post/${post.id}`}
+                  className="block group"
+                >
+                  <div className="flex gap-3">
+                    {post.image_url && (
+                      <div className="w-20 h-20 flex-shrink-0 relative overflow-hidden bg-gray-200">
+                        <Image
+                          src={post.image_url}
+                          alt={post.title}
+                          fill
+                          className="object-cover"
+                          sizes="80px"
+                        />
+                      </div>
+                    )}
+                    <div className="flex-1 min-w-0">
+                      <h3 className="text-sm font-black text-black leading-tight group-hover:underline line-clamp-2" style={{ fontFamily: 'Georgia, serif' }}>
+                        {post.title}
+                      </h3>
+                    </div>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </>
+        )}
+        
         {/* What's New Header */}
         <div className="bg-black text-white p-4 mb-6">
           <h2 className="text-xl font-black uppercase tracking-wider" style={{ fontFamily: 'Georgia, serif' }}>
@@ -202,9 +243,9 @@ export default function HeightMatchedArticles({ featuredPost, secondaryPosts, tr
           })}
         </div>
         
-        {/* Ad space under the 3 articles - not constrained by height */}
+        {/* Ad space under the articles - not constrained by height */}
         <div className="mt-4 flex-shrink-0" style={{ overflow: 'visible', minHeight: 'auto', height: 'auto' }}>
-          <NewspaperSidebar trendingPosts={trendingPosts} currentPage={currentPage} />
+          <NewspaperSidebar trendingPosts={[]} currentPage={currentPage} />
         </div>
       </div>
     );

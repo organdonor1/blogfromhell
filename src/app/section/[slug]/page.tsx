@@ -80,7 +80,7 @@ function SectionPageContent() {
           .select('*')
           .eq('published', true)
           .eq('section', sectionName)
-          .eq('featured', true)
+          .eq('featured_section', true)
           .order('created_at', { ascending: false })
           .limit(1)
           .maybeSingle();
@@ -142,47 +142,26 @@ function SectionPageContent() {
   // Pagination logic - with safety checks
   const startIndex = (currentPage - 1) * POSTS_PER_PAGE;
   
-  // Only use first post as featured if:
-  // 1. There's an actual featured post set (featuredPost), OR
-  // 2. There are enough articles (at least 5: 1 featured + 3 secondary + 1+ for the list)
-  // This ensures that when there are fewer articles, they all appear in the list instead
-  const hasEnoughArticles = Array.isArray(posts) && posts.length >= 5;
-  const displayFeatured = currentPage === 1 
-    ? (featuredPost || (hasEnoughArticles && Array.isArray(posts) && posts.length > 0 && posts[0] ? posts[0] : null)) 
-    : null;
-  
-  // Get secondary posts from all posts, excluding featured
-  // Only show secondary posts if we have enough articles total (at least 5)
-  const secondaryPosts = displayFeatured && Array.isArray(posts) && posts.length >= 5
-    ? posts.filter(p => p && p.id && displayFeatured && p.id !== displayFeatured.id).slice(0, 3) 
-    : [];
-  // Get secondary post IDs to exclude from main list
-  const secondaryPostIds = secondaryPosts.map(p => p.id);
+  // Display featured post if it exists
+  const displayFeatured = currentPage === 1 ? featuredPost : null;
   
   // Get trending post IDs to exclude from main list (trending articles should only appear in sidebar)
   const trendingPostIds = trendingPosts.map(p => p.id);
   
-  // Filter posts for pagination: exclude featured, secondary, and trending posts
-  // IMPORTANT: If there are fewer than 5 articles:
-  // - If no featured post is set: displayFeatured is null, so nothing gets excluded - all articles show
-  // - If featured post IS set: Always exclude it from the list (it's shown as featured article)
+  // Filter posts for pagination: exclude featured and trending posts
   const postsToPaginate = currentPage === 1
     ? (Array.isArray(posts) ? posts.filter(p => {
         // Exclude trending posts (they appear in sidebar only)
         if (trendingPostIds.includes(p.id)) return false;
         // Always exclude featured post if it's being displayed as featured
         if (displayFeatured && p.id === displayFeatured.id) return false;
-        // Only exclude secondary posts if we have enough articles (5+)
-        if (hasEnoughArticles) {
-          if (secondaryPostIds.includes(p.id)) return false;
-        }
         return true;
       }) : [])
     : (Array.isArray(posts) ? posts.filter(p => {
         // Exclude trending posts on all pages
         if (trendingPostIds.includes(p.id)) return false;
         // Exclude featured post if it exists
-        return featuredPost ? (p && p.id && p.id !== featuredPost.id) : (p && p.id);
+        return displayFeatured ? (p && p.id && p.id !== displayFeatured.id) : (p && p.id);
       }) : []);
   const displayPosts = Array.isArray(postsToPaginate) ? postsToPaginate.slice(startIndex, startIndex + POSTS_PER_PAGE) : [];
   const totalPages = Math.ceil((Array.isArray(postsToPaginate) ? postsToPaginate.length : 0) / POSTS_PER_PAGE);
@@ -215,49 +194,35 @@ function SectionPageContent() {
           <div className="text-center py-12 text-gray-600">Loading...</div>
         ) : (
           <>
-            {displayFeatured && Array.isArray(secondaryPosts) && secondaryPosts.length > 0 && currentPage === 1 ? (
+            {displayFeatured && currentPage === 1 ? (
               <>
-                <ErrorBoundary>
-                  <HeightMatchedArticles 
-                    featuredPost={displayFeatured} 
-                    secondaryPosts={secondaryPosts}
-                    trendingPosts={trendingPosts}
-                    currentPage={sectionSlugToPage[slug] || null}
-                  />
-                </ErrorBoundary>
-                <div className="mb-12">
-                  <ArticleList posts={displayPosts} showSection={false} />
-                </div>
-              </>
-            ) : displayFeatured && currentPage === 1 ? (
-              <>
-                {/* Show featured article separately when there are fewer than 5 articles */}
+                {/* Featured article and trending sidebar in grid */}
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-12">
-                  <div className="lg:col-span-2" style={{ position: 'relative', zIndex: 2 }}>
+                  <div className="lg:col-span-2" style={{ overflow: 'hidden' }}>
                     <FeaturedArticle post={displayFeatured} />
                   </div>
-                  <div style={{ position: 'relative', zIndex: 1, overflow: 'visible', backgroundColor: 'white' }}>
+                  <div className="lg:col-span-1" style={{ overflow: 'visible' }}>
                     <NewspaperSidebar trendingPosts={trendingPosts} currentPage={sectionSlugToPage[slug] || null} />
                   </div>
                 </div>
-                {/* Articles below featured - in grid with empty sidebar column to align */}
-                <div className="grid grid-cols-1 lg:grid-cols-3 mb-12 relative">
-                  <div className="lg:col-span-2" style={{ position: 'relative', zIndex: 2, backgroundColor: 'white' }}>
+                {/* Articles below featured - aligned with sidebar */}
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-12">
+                  <div className="lg:col-span-2" style={{ position: 'relative', zIndex: 3, backgroundColor: 'white' }}>
                     <div style={{ paddingRight: '2rem', marginRight: '2rem', overflow: 'hidden', width: '100%' }}>
                       <ArticleList posts={displayPosts} showSection={false} />
                     </div>
                   </div>
-                  <div className="lg:col-span-1" style={{ position: 'relative', zIndex: 3, backgroundColor: 'white', marginLeft: '-4rem', paddingLeft: '2rem' }}></div>
+                  <div className="lg:col-span-1"></div>
                 </div>
               </>
             ) : (
-              <div className="grid grid-cols-1 lg:grid-cols-3 mb-12">
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-12">
                 <div className="lg:col-span-2" style={{ position: 'relative', zIndex: 2, backgroundColor: 'white' }}>
                   <div style={{ paddingRight: '2rem', marginRight: '2rem', overflow: 'hidden', width: '100%' }}>
                     <ArticleList posts={displayPosts} showSection={false} />
                   </div>
                 </div>
-                <div style={{ position: 'relative', zIndex: 1, overflow: 'visible', backgroundColor: 'white', marginLeft: '-4rem', paddingLeft: '2rem' }}>
+                <div className="lg:col-span-1" style={{ position: 'relative', zIndex: 1, overflow: 'visible', backgroundColor: 'white' }}>
                   <NewspaperSidebar trendingPosts={trendingPosts} currentPage={sectionSlugToPage[slug] || null} />
                 </div>
               </div>
