@@ -846,10 +846,11 @@ export default function Admin() {
                       <SelectContent>
                         <SelectItem value="all">All Pages (default)</SelectItem>
                         <SelectItem value="home">Home</SelectItem>
-                        <SelectItem value="local">Local</SelectItem>
                         <SelectItem value="politics">Politics</SelectItem>
-                        <SelectItem value="sports">Sports</SelectItem>
+                        <SelectItem value="news">News</SelectItem>
                         <SelectItem value="entertainment">Entertainment</SelectItem>
+                        <SelectItem value="local">Local</SelectItem>
+                        <SelectItem value="sports">Sports</SelectItem>
                         <SelectItem value="opinion">Opinion</SelectItem>
                       </SelectContent>
                     </Select>
@@ -991,17 +992,18 @@ export default function Admin() {
 
                 <div>
                   <Label>Section *</Label>
-                  <p className="text-xs text-muted-foreground mb-2">Required to appear in section pages (Local, Politics, Sports, Entertainment, Opinion)</p>
+                  <p className="text-xs text-muted-foreground mb-2">Required to appear in section pages (Politics, News, Entertainment, Local, Sports, Opinion)</p>
                   <Select value={formData.section} onValueChange={(v) => setFormData({ ...formData, section: v })}>
                     <SelectTrigger>
                       <SelectValue placeholder="Select a section" />
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="none">None (won't appear in sections)</SelectItem>
-                      <SelectItem value="Local">Local</SelectItem>
                       <SelectItem value="Politics">Politics</SelectItem>
-                      <SelectItem value="Sports">Sports</SelectItem>
+                      <SelectItem value="News">News</SelectItem>
                       <SelectItem value="Entertainment">Entertainment</SelectItem>
+                      <SelectItem value="Local">Local</SelectItem>
+                      <SelectItem value="Sports">Sports</SelectItem>
                       <SelectItem value="Opinion">Opinion</SelectItem>
                     </SelectContent>
                   </Select>

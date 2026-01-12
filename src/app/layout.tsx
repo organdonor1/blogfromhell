@@ -5,7 +5,7 @@ import { Toaster } from "../components/ui/toaster";
 import { Analytics } from "@vercel/analytics/next";
 
 export const metadata: Metadata = {
-  title: "The Hellmouth",
+  title: "Hellmouth",
   description: "A blog featuring fiction stories and news articles.",
 };
 

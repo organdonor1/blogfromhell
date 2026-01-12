@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, useMemo } from 'react';
 import FeaturedArticle from './FeaturedArticle';
 import SecondaryArticleCard from './SecondaryArticleCard';
 import NewspaperSidebar from './NewspaperSidebar';
@@ -22,23 +22,45 @@ interface HeightMatchedArticlesProps {
   currentPage?: string | null;
 }
 
-export default function HeightMatchedArticles({ featuredPost, secondaryPosts, trendingPosts = [], currentPage = null }: HeightMatchedArticlesProps) {
+export default function HeightMatchedArticles({ featuredPost, secondaryPosts, trendingPosts = [], currentPage = null, sidebarOnly = false }: HeightMatchedArticlesProps) {
   const featuredRef = useRef<HTMLDivElement>(null);
   const secondaryRef = useRef<HTMLDivElement>(null);
   const [matchedHeight, setMatchedHeight] = useState<number | null>(null);
   const [isMounted, setIsMounted] = useState(false);
+  const lastValidPostsRef = useRef<Post[]>([]);
+
+  // Memoize posts to show to prevent recalculation, but preserve last valid value
+  const postsToShow = useMemo(() => {
+    if (!secondaryPosts || secondaryPosts.length === 0) {
+      // Return last valid posts if we had them, otherwise empty array
+      return lastValidPostsRef.current.length > 0 ? lastValidPostsRef.current : [];
+    }
+    const result = secondaryPosts.slice(0, 3);
+    // Store valid result
+    if (result.length > 0) {
+      lastValidPostsRef.current = result;
+    }
+    return result;
+  }, [secondaryPosts]);
 
   // Safety check
-  if (!featuredPost || !secondaryPosts || secondaryPosts.length === 0) {
+  if (!featuredPost) {
     return null;
   }
+  
+  // If we have posts to show (either current or from ref), render them
+  if (postsToShow.length === 0) {
+    return null;
+  }
+  
+  console.log('HeightMatchedArticles rendering with postsToShow:', postsToShow.length, postsToShow.map(p => p.title));
 
   useEffect(() => {
     setIsMounted(true);
   }, []);
 
   useEffect(() => {
-    if (!isMounted || typeof window === 'undefined') return;
+    if (!isMounted || typeof window === 'undefined' || sidebarOnly) return;
 
     const updateHeight = () => {
       try {
@@ -48,6 +70,7 @@ export default function HeightMatchedArticles({ featuredPost, secondaryPosts, tr
           if (secondaryRef.current) {
             secondaryRef.current.style.height = '';
             secondaryRef.current.style.maxHeight = '';
+            secondaryRef.current.style.overflow = '';
           }
           return;
         }
@@ -60,8 +83,14 @@ export default function HeightMatchedArticles({ featuredPost, secondaryPosts, tr
         
         if (featuredHeight > 0) {
           setMatchedHeight(featuredHeight);
-          secondaryRef.current.style.height = `${featuredHeight}px`;
-          secondaryRef.current.style.maxHeight = `${featuredHeight}px`;
+          // Don't set any height constraints - let the container grow naturally
+          // This allows the ad to display fully without being cut off
+          if (secondaryRef.current) {
+            secondaryRef.current.style.height = 'auto';
+            secondaryRef.current.style.maxHeight = 'none';
+            secondaryRef.current.style.overflow = 'visible';
+            secondaryRef.current.style.minHeight = 'auto';
+          }
         }
       } catch (error) {
         console.error('Error matching heights:', error);
@@ -131,10 +160,58 @@ export default function HeightMatchedArticles({ featuredPost, secondaryPosts, tr
       window.removeEventListener('resize', waitForImages);
       window.removeEventListener('load', waitForImages);
     };
-  }, [isMounted, featuredPost, secondaryPosts]);
+  }, [isMounted, featuredPost, secondaryPosts, sidebarOnly]);
+
+  // If sidebarOnly, just render the sidebar content
+  if (sidebarOnly) {
+    return (
+      <div 
+        className="flex flex-col" 
+        ref={secondaryRef}
+        style={{ 
+          overflow: 'visible',
+          maxHeight: 'none',
+          height: 'auto'
+        }}
+      >
+        {/* What's New Header */}
+        <div className="bg-black text-white p-4 mb-6">
+          <h2 className="text-xl font-black uppercase tracking-wider" style={{ fontFamily: 'Georgia, serif' }}>
+            What&apos;s New
+          </h2>
+        </div>
+        
+        <div 
+          className="flex flex-col" 
+          style={{ 
+            gap: '0.75rem',
+            overflow: 'visible'
+          }}
+        >
+          {postsToShow.map((post, index) => {
+            if (!post || !post.id) return null;
+            return (
+              <div 
+                key={post.id} 
+                className="flex flex-col"
+                style={{ opacity: 1, visibility: 'visible' }}
+              >
+                <SecondaryArticleCard post={post} />
+              </div>
+            );
+          })}
+        </div>
+        
+        {/* Ad space under the 3 articles - not constrained by height */}
+        <div className="mt-4 flex-shrink-0" style={{ overflow: 'visible', minHeight: 'auto', height: 'auto' }}>
+          <NewspaperSidebar trendingPosts={trendingPosts} currentPage={currentPage} />
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-16">
+    <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-16" style={{ overflow: 'visible', minHeight: 0 }}>
       {/* Main Content - Featured Article */}
       <div className="lg:col-span-2" ref={featuredRef}>
         <FeaturedArticle post={featuredPost} />
@@ -145,31 +222,32 @@ export default function HeightMatchedArticles({ featuredPost, secondaryPosts, tr
         className="flex flex-col" 
         ref={secondaryRef}
         style={{ 
-          minHeight: 0,
-          ...(matchedHeight && typeof window !== 'undefined' && window.innerWidth >= 1024 ? { 
-            maxHeight: `${matchedHeight}px` 
-          } : {})
+          overflow: 'visible',
+          maxHeight: 'none',
+          height: 'auto'
         }}
       >
-        {/* Trending Header */}
+        {/* What's New Header */}
         <div className="bg-black text-white p-4 mb-6">
           <h2 className="text-xl font-black uppercase tracking-wider" style={{ fontFamily: 'Georgia, serif' }}>
-            Trending
+            What&apos;s New
           </h2>
         </div>
         
         <div 
           className="flex flex-col" 
           style={{ 
-            gap: '0.75rem'
+            gap: '0.75rem',
+            overflow: 'visible'
           }}
         >
-          {secondaryPosts.slice(0, 3).map((post, index) => {
+          {postsToShow.map((post, index) => {
             if (!post || !post.id) return null;
             return (
               <div 
                 key={post.id} 
                 className="flex flex-col"
+                style={{ opacity: 1, visibility: 'visible' }}
               >
                 <SecondaryArticleCard post={post} />
               </div>
@@ -177,8 +255,61 @@ export default function HeightMatchedArticles({ featuredPost, secondaryPosts, tr
           })}
         </div>
         
-        {/* Ad space under the 3 articles */}
-        <div className="mt-4 flex-shrink-0">
+        {/* Ad space under the 3 articles - not constrained by height */}
+        <div className="mt-4 flex-shrink-0" style={{ overflow: 'visible', minHeight: 'auto', height: 'auto' }}>
+          <NewspaperSidebar trendingPosts={trendingPosts} currentPage={currentPage} />
+        </div>
+      </div>
+    </div>
+  );
+
+  return (
+    <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-16" style={{ overflow: 'visible', minHeight: 0 }}>
+      {/* Main Content - Featured Article */}
+      <div className="lg:col-span-2" ref={featuredRef}>
+        <FeaturedArticle post={featuredPost} />
+      </div>
+
+      {/* Secondary articles - constrained to match featured height */}
+      <div 
+        className="flex flex-col" 
+        ref={secondaryRef}
+        style={{ 
+          overflow: 'visible',
+          maxHeight: 'none',
+          height: 'auto'
+        }}
+      >
+        {/* What's New Header */}
+        <div className="bg-black text-white p-4 mb-6">
+          <h2 className="text-xl font-black uppercase tracking-wider" style={{ fontFamily: 'Georgia, serif' }}>
+            What&apos;s New
+          </h2>
+        </div>
+        
+        <div 
+          className="flex flex-col" 
+          style={{ 
+            gap: '0.75rem',
+            overflow: 'visible'
+          }}
+        >
+          {postsToShow.map((post, index) => {
+            if (!post || !post.id) return null;
+            return (
+              <div 
+                key={post.id} 
+                className="flex flex-col"
+                style={{ opacity: 1, visibility: 'visible' }}
+              >
+                <SecondaryArticleCard post={post} />
+              </div>
+            );
+          })}
+        </div>
+        
+        {/* Ad space under the 3 articles - not constrained by height */}
+        <div className="mt-4 flex-shrink-0" style={{ overflow: 'visible', minHeight: 'auto', height: 'auto' }}>
           <NewspaperSidebar trendingPosts={trendingPosts} currentPage={currentPage} />
         </div>
       </div>

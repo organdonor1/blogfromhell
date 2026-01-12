@@ -191,7 +191,7 @@ export default function NewspaperSidebar({ trendingPosts = [], adSpace, currentP
   }, [currentPage]);
 
   return (
-    <aside className="w-full md:w-80 space-y-6" style={{ position: 'relative', zIndex: 1 }}>
+    <aside className="w-full md:w-80 space-y-6" style={{ position: 'relative', zIndex: 1, overflow: 'visible', minWidth: 0 }}>
       {/* Trending Section */}
       {trendingPosts.length > 0 && (
         <div className="bg-black text-white p-4 mb-6">
@@ -283,11 +283,13 @@ export default function NewspaperSidebar({ trendingPosts = [], adSpace, currentP
                 display: 'block',
                 width: '100%',
                 height: 'auto',
+                maxWidth: '100%',
                 margin: 0,
                 padding: 0,
                 border: 'none',
                 outline: 'none',
-                verticalAlign: 'top'
+                verticalAlign: 'top',
+                objectFit: 'contain'
               }}
               loading="lazy"
             />
@@ -313,19 +315,22 @@ export default function NewspaperSidebar({ trendingPosts = [], adSpace, currentP
         return (
           <div 
             key={`ad-${firstAd.id}`}
-            className="border-4 border-black mb-6 w-full" 
+            className="border-4 border-black mb-6" 
             style={{ 
               position: 'relative',
-              overflow: 'hidden',
+              overflow: 'visible',
               width: '100%',
-              maxWidth: '100%',
               backgroundColor: '#ffffff',
               lineHeight: 0,
               zIndex: 1,
-              boxSizing: 'border-box'
+              boxSizing: 'border-box',
+              minHeight: 'auto',
+              maxHeight: 'none'
             }}
           >
-            {adContent}
+            <div style={{ width: '100%', overflow: 'visible', display: 'block' }}>
+              {adContent}
+            </div>
           </div>
         );
       })()}

@@ -7,6 +7,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import Header from '../../../components/Header';
 import Footer from '../../../components/footer';
+import Comments from '../../../components/Comments';
 import { supabase } from '../../../integrations/supabase/client';
 
 interface Post {
@@ -128,6 +129,8 @@ export default function PostDetail() {
             </div>
           )}
         </article>
+
+        <Comments postId={post.id} />
       </main>
       
       <div className="mt-auto">

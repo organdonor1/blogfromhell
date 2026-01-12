@@ -13,7 +13,7 @@ function Hero() {
         color="blue-gray"
         className="mx-auto w-full text-[30px] lg:text-[48px] font-bold leading-[45px] lg:leading-[60px] lg:max-w-2xl"
       >
-        The Hellmouth
+        Hellmouth
       </Typography>
       {/* @ts-expect-error - Material Tailwind Typography type issue */}
       <Typography

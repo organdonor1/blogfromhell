@@ -35,6 +35,7 @@ const POSTS_PER_PAGE = 10;
 const sectionNames: Record<string, string> = {
   local: 'Local',
   politics: 'Politics',
+  news: 'News',
   sports: 'Sports',
   entertainment: 'Entertainment',
   opinion: 'Opinion',
@@ -44,6 +45,7 @@ const sectionNames: Record<string, string> = {
 const sectionSlugToPage: Record<string, string> = {
   local: 'local',
   politics: 'politics',
+  news: 'news',
   sports: 'sports',
   entertainment: 'entertainment',
   opinion: 'opinion',
@@ -189,7 +191,7 @@ function SectionPageContent() {
     return (
       <div className="min-h-screen bg-white">
         <NewspaperHeader />
-        <main className="container mx-auto px-4 md:px-6 py-8 max-w-7xl">
+        <main className="container mx-auto px-4 md:px-6 py-8 max-w-6xl">
           <div className="text-center py-12 text-red-600">Error: {error}</div>
         </main>
         <Footer />
@@ -234,26 +236,28 @@ function SectionPageContent() {
                   <div className="lg:col-span-2" style={{ position: 'relative', zIndex: 2 }}>
                     <FeaturedArticle post={displayFeatured} />
                   </div>
-                  <div style={{ position: 'relative', zIndex: 1, overflow: 'hidden', backgroundColor: 'white' }}>
+                  <div style={{ position: 'relative', zIndex: 1, overflow: 'visible', backgroundColor: 'white' }}>
                     <NewspaperSidebar trendingPosts={trendingPosts} currentPage={sectionSlugToPage[slug] || null} />
                   </div>
                 </div>
                 {/* Articles below featured - in grid with empty sidebar column to align */}
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-12 relative">
-                  <div className="lg:col-span-2" style={{ position: 'relative', zIndex: 2 }}>
-                    <div style={{ overflow: 'hidden', width: '100%' }}>
+                <div className="grid grid-cols-1 lg:grid-cols-3 mb-12 relative">
+                  <div className="lg:col-span-2" style={{ position: 'relative', zIndex: 2, backgroundColor: 'white' }}>
+                    <div style={{ paddingRight: '2rem', marginRight: '2rem', overflow: 'hidden', width: '100%' }}>
                       <ArticleList posts={displayPosts} showSection={false} />
                     </div>
                   </div>
-                  <div className="lg:col-span-1" style={{ position: 'relative', zIndex: 3, backgroundColor: 'white', paddingLeft: '2rem', marginLeft: '-2rem' }}></div>
+                  <div className="lg:col-span-1" style={{ position: 'relative', zIndex: 3, backgroundColor: 'white', marginLeft: '-4rem', paddingLeft: '2rem' }}></div>
                 </div>
               </>
             ) : (
-              <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-12">
-                <div className="lg:col-span-2" style={{ position: 'relative', zIndex: 2, overflow: 'hidden' }}>
-                  <ArticleList posts={displayPosts} showSection={false} />
+              <div className="grid grid-cols-1 lg:grid-cols-3 mb-12">
+                <div className="lg:col-span-2" style={{ position: 'relative', zIndex: 2, backgroundColor: 'white' }}>
+                  <div style={{ paddingRight: '2rem', marginRight: '2rem', overflow: 'hidden', width: '100%' }}>
+                    <ArticleList posts={displayPosts} showSection={false} />
+                  </div>
                 </div>
-                <div style={{ position: 'relative', zIndex: 1, overflow: 'hidden' }}>
+                <div style={{ position: 'relative', zIndex: 1, overflow: 'visible', backgroundColor: 'white', marginLeft: '-4rem', paddingLeft: '2rem' }}>
                   <NewspaperSidebar trendingPosts={trendingPosts} currentPage={sectionSlugToPage[slug] || null} />
                 </div>
               </div>

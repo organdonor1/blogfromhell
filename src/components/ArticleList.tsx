@@ -26,7 +26,7 @@ export default function ArticleList({ posts, showSection = true }: ArticleListPr
   }
 
   return (
-    <div className="space-y-0" style={{ overflow: 'hidden' }}>
+    <div className="space-y-0" style={{ overflow: 'hidden', backgroundColor: 'white', position: 'relative', isolation: 'isolate', clipPath: 'inset(0)' }}>
       {posts.map((post, index) => {
         const formattedDate = new Date(post.created_at).toLocaleDateString('en-US', {
           year: 'numeric',
@@ -35,7 +35,7 @@ export default function ArticleList({ posts, showSection = true }: ArticleListPr
         });
 
         return (
-          <article key={post.id} className={`border-b-2 border-black ${index === 0 ? 'pt-0' : 'pt-3'} pb-3 last:border-0`}>
+          <article key={post.id} className={`border-b-2 border-black ${index === 0 ? 'pt-0' : 'pt-3'} pb-3 last:border-0`} style={{ maxWidth: '100%', boxSizing: 'border-box' }}>
             <Link href={`/post/${post.id}`} className="block group">
               <div className="flex gap-4">
                 {post.image_url && (

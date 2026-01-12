@@ -69,7 +69,7 @@ export function Navbar() {
           color="blue-gray"
           className="text-lg font-bold"
         >
-          The Hellmouth
+          Hellmouth
         </Typography>
         <ul className="ml-10 hidden items-center gap-8 lg:flex">
           {NAV_MENU.map(({ name, icon: Icon, href }) => (
