@@ -151,6 +151,13 @@ export default function HeightMatchedArticles({ featuredPost, secondaryPosts, tr
           } : {})
         }}
       >
+        {/* Trending Header */}
+        <div className="bg-black text-white p-4 mb-6">
+          <h2 className="text-xl font-black uppercase tracking-wider" style={{ fontFamily: 'Georgia, serif' }}>
+            Trending
+          </h2>
+        </div>
+        
         <div 
           className="flex flex-col" 
           style={{ 
@@ -172,7 +179,7 @@ export default function HeightMatchedArticles({ featuredPost, secondaryPosts, tr
         
         {/* Ad space under the 3 articles */}
         <div className="mt-4 flex-shrink-0">
-          <NewspaperSidebar trendingPosts={[]} currentPage={currentPage} />
+          <NewspaperSidebar trendingPosts={trendingPosts} currentPage={currentPage} />
         </div>
       </div>
     </div>

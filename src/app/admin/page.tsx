@@ -26,7 +26,11 @@ interface Post {
   created_at: string;
   image_url: string | null;
   featured: boolean | null;
+  featured_home: boolean | null;
+  featured_section: boolean | null;
   trending: boolean | null;
+  trending_home: boolean | null;
+  trending_section: boolean | null;
 }
 
 interface Subscriber {
@@ -215,8 +219,10 @@ export default function Admin() {
         published: Boolean(formData.published),
         image_url: (imageUrl && typeof imageUrl === 'string') ? imageUrl : null,
         section: (formData.section && typeof formData.section === 'string' && formData.section.trim() && formData.section !== 'none') ? formData.section.trim() : null,
-        featured: Boolean(formData.featured),
-        trending: Boolean(formData.trending),
+        featured_home: Boolean(formData.featured_home),
+        featured_section: Boolean(formData.featured_section),
+        trending_home: Boolean(formData.trending_home),
+        trending_section: Boolean(formData.trending_section),
       };
 
       // Handle content safely
@@ -390,8 +396,10 @@ export default function Admin() {
       read_time: post.read_time || '',
       published: post.published ?? false,
       image_url: post.image_url || '',
-      featured: Boolean(post.featured),
-      trending: Boolean(post.trending),
+      featured_home: Boolean(post.featured_home),
+      featured_section: Boolean(post.featured_section),
+      trending_home: Boolean(post.trending_home),
+      trending_section: Boolean(post.trending_section),
     });
     setImageFile(null);
     setImagePreview(post.image_url || null);
@@ -1088,20 +1096,40 @@ export default function Admin() {
                   />
                 </div>
 
-                <div className="flex items-center gap-2">
-                  <Switch
-                    checked={formData.featured}
-                    onCheckedChange={(v) => setFormData({ ...formData, featured: v })}
-                  />
-                  <Label>Featured (shows as main article)</Label>
+                <div className="space-y-4 border-t pt-4">
+                  <h3 className="font-semibold text-sm">Homepage</h3>
+                  <div className="flex items-center gap-2">
+                    <Switch
+                      checked={formData.featured_home}
+                      onCheckedChange={(v) => setFormData({ ...formData, featured_home: v })}
+                    />
+                    <Label>Featured on Homepage</Label>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Switch
+                      checked={formData.trending_home}
+                      onCheckedChange={(v) => setFormData({ ...formData, trending_home: v })}
+                    />
+                    <Label>Trending on Homepage</Label>
+                  </div>
                 </div>
 
-                <div className="flex items-center gap-2">
-                  <Switch
-                    checked={formData.trending}
-                    onCheckedChange={(v) => setFormData({ ...formData, trending: v })}
-                  />
-                  <Label>Trending (shows in sidebar)</Label>
+                <div className="space-y-4 border-t pt-4">
+                  <h3 className="font-semibold text-sm">Section Page ({formData.section || 'None selected'})</h3>
+                  <div className="flex items-center gap-2">
+                    <Switch
+                      checked={formData.featured_section}
+                      onCheckedChange={(v) => setFormData({ ...formData, featured_section: v })}
+                    />
+                    <Label>Featured on Section Page</Label>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Switch
+                      checked={formData.trending_section}
+                      onCheckedChange={(v) => setFormData({ ...formData, trending_section: v })}
+                    />
+                    <Label>Trending on Section Page</Label>
+                  </div>
                 </div>
 
                 <div className="flex items-center gap-2">

@@ -191,7 +191,7 @@ export default function NewspaperSidebar({ trendingPosts = [], adSpace, currentP
   }, [currentPage]);
 
   return (
-    <aside className="w-full md:w-80 space-y-6">
+    <aside className="w-full md:w-80 space-y-6" style={{ position: 'relative', zIndex: 1 }}>
       {/* Trending Section */}
       {trendingPosts.length > 0 && (
         <div className="bg-black text-white p-4 mb-6">
@@ -318,10 +318,11 @@ export default function NewspaperSidebar({ trendingPosts = [], adSpace, currentP
               position: 'relative',
               overflow: 'hidden',
               width: '100%',
+              maxWidth: '100%',
               backgroundColor: '#ffffff',
               lineHeight: 0,
-              isolation: 'isolate',
-              contain: 'layout style paint'
+              zIndex: 1,
+              boxSizing: 'border-box'
             }}
           >
             {adContent}

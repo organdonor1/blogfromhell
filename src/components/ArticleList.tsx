@@ -26,7 +26,7 @@ export default function ArticleList({ posts, showSection = true }: ArticleListPr
   }
 
   return (
-    <div className="space-y-0">
+    <div className="space-y-0" style={{ overflow: 'hidden' }}>
       {posts.map((post, index) => {
         const formattedDate = new Date(post.created_at).toLocaleDateString('en-US', {
           year: 'numeric',

@@ -42,12 +42,12 @@ function IndexContent() {
     const fetchPosts = async () => {
       setIsLoading(true);
       try {
-        // Fetch featured post
+        // Fetch featured post for homepage
         const { data: featuredData, error: featuredError } = await supabase
           .from('posts')
           .select('*')
           .eq('published', true)
-          .eq('featured', true)
+          .eq('featured_home', true)
           .order('created_at', { ascending: false })
           .limit(1)
           .maybeSingle();
@@ -69,12 +69,11 @@ function IndexContent() {
 
         setTrendingPosts(Array.isArray(trendingData) ? trendingData : []);
 
-        // Fetch regular posts (exclude featured)
+        // Fetch all published posts (don't exclude featured - they'll show in both places)
         const { data: postsData } = await supabase
           .from('posts')
           .select('*')
           .eq('published', true)
-          .neq('featured', true)
           .order('created_at', { ascending: false });
 
         setPosts(Array.isArray(postsData) ? postsData : []);
@@ -100,14 +99,19 @@ function IndexContent() {
     : [];
   // Get secondary post IDs to exclude from main list
   const secondaryPostIds = secondaryPosts.map(p => p.id);
-  // Filter posts for pagination: exclude featured and secondary posts
+  // Filter posts for pagination: exclude secondary posts (but keep featured and trending in the list)
+  // All articles show in the main list by default, featured/trending just control placement
   const postsToPaginate = currentPage === 1
     ? posts.filter(p => {
-        if (displayFeatured && p.id === displayFeatured.id) return false;
+        // Only exclude secondary posts (the 3 articles shown in the right column)
+        // Featured and trending articles still appear in the main list
         if (secondaryPostIds.includes(p.id)) return false;
         return true;
       })
-    : posts.filter(p => featuredPost ? p.id !== featuredPost.id : true);
+    : posts.filter(p => {
+        // On page 2+, exclude featured post if it exists
+        return featuredPost ? p.id !== featuredPost.id : true;
+      });
   const displayPosts = postsToPaginate.slice(startIndex, startIndex + POSTS_PER_PAGE);
   const totalPages = Math.ceil(postsToPaginate.length / POSTS_PER_PAGE);
 
@@ -125,6 +129,7 @@ function IndexContent() {
                 <HeightMatchedArticles 
                   featuredPost={displayFeatured} 
                   secondaryPosts={secondaryPosts}
+                  trendingPosts={trendingPosts}
                   currentPage="home"
                 />
                 {/* Articles below featured */}
@@ -140,26 +145,31 @@ function IndexContent() {
             ) : displayFeatured ? (
               <>
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-12">
-                  <div className="lg:col-span-2">
+                  <div className="lg:col-span-2" style={{ position: 'relative', zIndex: 2 }}>
                     <FeaturedArticle post={displayFeatured} />
                   </div>
-                  <div>
+                  <div style={{ position: 'relative', zIndex: 1, overflow: 'hidden', backgroundColor: 'white' }}>
                     <NewspaperSidebar trendingPosts={trendingPosts} currentPage="home" />
                   </div>
                 </div>
-                {/* Articles below featured */}
-                <div className="mb-12">
-                  <ArticleList posts={displayPosts} />
-                  <Pagination
-                    currentPage={currentPage}
-                    totalPages={totalPages}
-                    basePath="/"
-                  />
+                {/* Articles below featured - in grid with empty sidebar column to align */}
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-12 relative">
+                  <div className="lg:col-span-2" style={{ position: 'relative', zIndex: 2 }}>
+                    <div style={{ overflow: 'hidden', width: '100%' }}>
+                      <ArticleList posts={displayPosts} />
+                    </div>
+                    <Pagination
+                      currentPage={currentPage}
+                      totalPages={totalPages}
+                      basePath="/"
+                    />
+                  </div>
+                  <div className="lg:col-span-1" style={{ position: 'relative', zIndex: 3, backgroundColor: 'white', paddingLeft: '2rem', marginLeft: '-2rem' }}></div>
                 </div>
               </>
             ) : (
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                <div className="lg:col-span-2">
+                <div className="lg:col-span-2" style={{ position: 'relative', zIndex: 2, overflow: 'hidden' }}>
                   <ArticleList posts={displayPosts} />
                   <Pagination
                     currentPage={currentPage}
@@ -167,7 +177,7 @@ function IndexContent() {
                     basePath="/"
                   />
                 </div>
-                <div>
+                <div style={{ position: 'relative', zIndex: 1, overflow: 'hidden', backgroundColor: 'white' }}>
                   <NewspaperSidebar trendingPosts={trendingPosts} currentPage="home" />
                 </div>
               </div>
