@@ -95,12 +95,13 @@ function SectionPageContent() {
           setFeaturedPost(null);
         }
 
-        // Fetch trending posts for section pages
+        // Fetch trending posts for this specific section
         const { data: trendingData, error: trendingError } = await supabase
           .from('posts')
           .select('*')
           .eq('published', true)
           .eq('trending_section', true)
+          .eq('section', sectionName)
           .order('created_at', { ascending: false })
           .limit(5);
 
