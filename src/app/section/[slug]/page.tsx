@@ -28,12 +28,20 @@ interface Post {
 const POSTS_PER_PAGE = 10;
 
 const sectionNames: Record<string, string> = {
-  news: 'News',
   local: 'Local',
   politics: 'Politics',
   sports: 'Sports',
   entertainment: 'Entertainment',
   opinion: 'Opinion',
+};
+
+// Map section slugs to page values for ads
+const sectionSlugToPage: Record<string, string> = {
+  local: 'local',
+  politics: 'politics',
+  sports: 'sports',
+  entertainment: 'entertainment',
+  opinion: 'opinion',
 };
 
 function SectionPageContent() {
@@ -127,14 +135,22 @@ function SectionPageContent() {
   // Pagination logic - with safety checks
   const startIndex = (currentPage - 1) * POSTS_PER_PAGE;
   const displayFeatured = currentPage === 1 ? (featuredPost || (Array.isArray(posts) && posts.length > 0 && posts[0] ? posts[0] : null)) : null;
-  const postsToPaginate = featuredPost && currentPage === 1
-    ? (Array.isArray(posts) ? posts.filter(p => p && p.id && featuredPost && p.id !== featuredPost.id) : [])
-    : (Array.isArray(posts) ? posts.filter(p => featuredPost ? (p && p.id && p.id !== featuredPost.id) : (p && p.id)) : []);
-  const displayPosts = Array.isArray(postsToPaginate) ? postsToPaginate.slice(startIndex, startIndex + POSTS_PER_PAGE) : [];
-  const totalPages = Math.ceil((Array.isArray(postsToPaginate) ? postsToPaginate.length : 0) / POSTS_PER_PAGE);
+  // Get secondary posts from all posts, excluding featured
   const secondaryPosts = displayFeatured && Array.isArray(posts) 
     ? posts.filter(p => p && p.id && displayFeatured && p.id !== displayFeatured.id).slice(0, 3) 
     : [];
+  // Get secondary post IDs to exclude from main list
+  const secondaryPostIds = secondaryPosts.map(p => p.id);
+  // Filter posts for pagination: exclude featured and secondary posts
+  const postsToPaginate = currentPage === 1
+    ? (Array.isArray(posts) ? posts.filter(p => {
+        if (displayFeatured && p.id === displayFeatured.id) return false;
+        if (secondaryPostIds.includes(p.id)) return false;
+        return true;
+      }) : [])
+    : (Array.isArray(posts) ? posts.filter(p => featuredPost ? (p && p.id && p.id !== featuredPost.id) : (p && p.id)) : []);
+  const displayPosts = Array.isArray(postsToPaginate) ? postsToPaginate.slice(startIndex, startIndex + POSTS_PER_PAGE) : [];
+  const totalPages = Math.ceil((Array.isArray(postsToPaginate) ? postsToPaginate.length : 0) / POSTS_PER_PAGE);
 
   if (error) {
     return (
@@ -170,15 +186,11 @@ function SectionPageContent() {
                   <HeightMatchedArticles 
                     featuredPost={displayFeatured} 
                     secondaryPosts={secondaryPosts}
+                    currentPage={sectionSlugToPage[slug] || null}
                   />
                 </ErrorBoundary>
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-12">
-                  <div className="lg:col-span-2">
-                    <ArticleList posts={displayPosts} showSection={false} />
-                  </div>
-                  <div>
-                    <NewspaperSidebar trendingPosts={trendingPosts} />
-                  </div>
+                <div className="mb-12">
+                  <ArticleList posts={displayPosts} showSection={false} />
                 </div>
               </>
             ) : (
@@ -187,7 +199,7 @@ function SectionPageContent() {
                   <ArticleList posts={displayPosts} showSection={false} />
                 </div>
                 <div>
-                  <NewspaperSidebar trendingPosts={trendingPosts} />
+                  <NewspaperSidebar trendingPosts={trendingPosts} currentPage={sectionSlugToPage[slug] || null} />
                 </div>
               </div>
             )}

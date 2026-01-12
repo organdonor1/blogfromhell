@@ -88,6 +88,7 @@ export type Database = {
           link_url: string | null
           position: string
           active: boolean
+          page: string | null
           created_at: string
           updated_at: string
         }
@@ -98,6 +99,7 @@ export type Database = {
           link_url?: string | null
           position: string
           active?: boolean
+          page?: string | null
           created_at?: string
           updated_at?: string
         }
@@ -108,6 +110,7 @@ export type Database = {
           link_url?: string | null
           position?: string
           active?: boolean
+          page?: string | null
           created_at?: string
           updated_at?: string
         }

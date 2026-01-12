@@ -35,35 +35,36 @@ export default function ArticleList({ posts, showSection = true }: ArticleListPr
         });
 
         return (
-          <article key={post.id} className={`border-b-2 border-black ${index === 0 ? 'pt-0' : 'pt-6'} pb-6 last:border-0`}>
+          <article key={post.id} className={`border-b-2 border-black ${index === 0 ? 'pt-0' : 'pt-3'} pb-3 last:border-0`}>
             <Link href={`/post/${post.id}`} className="block group">
-              <div className="flex gap-6">
+              <div className="flex gap-4">
                 {post.image_url && (
-                  <div className="w-32 h-32 md:w-40 md:h-40 flex-shrink-0 relative overflow-hidden bg-gray-200">
+                  <div className="w-20 h-20 md:w-24 md:h-24 flex-shrink-0 relative overflow-hidden bg-gray-200">
                     <Image
                       src={post.image_url}
                       alt={post.title}
                       fill
                       className="object-cover"
+                      sizes="(max-width: 768px) 80px, 96px"
                     />
                   </div>
                 )}
                 
                 <div className="flex-1 min-w-0">
                   {showSection && post.section && (
-                    <div className="mb-2">
-                      <span className="inline-block bg-black text-white text-xs font-bold uppercase tracking-wider px-2 py-1">
+                    <div className="mb-1">
+                      <span className="inline-block bg-black text-white text-xs font-bold uppercase tracking-wider px-2 py-0.5">
                         {post.section}
                       </span>
                     </div>
                   )}
                   
-                  <h2 className="text-2xl md:text-3xl font-black text-black mb-2 leading-tight group-hover:underline" style={{ fontFamily: 'Georgia, serif' }}>
+                  <h2 className="text-lg md:text-xl font-black text-black mb-1 leading-tight group-hover:underline" style={{ fontFamily: 'Georgia, serif' }}>
                     {post.title}
                   </h2>
                   
                   {post.excerpt && (
-                    <p className="text-gray-700 mb-3 line-clamp-2 text-base leading-relaxed" style={{ fontFamily: 'Georgia, serif' }}>
+                    <p className="text-gray-700 mb-1 line-clamp-2 text-xs leading-relaxed" style={{ fontFamily: 'Georgia, serif' }}>
                       {post.excerpt}
                     </p>
                   )}

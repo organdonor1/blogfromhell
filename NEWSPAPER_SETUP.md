@@ -63,6 +63,14 @@ $$ language 'plpgsql';
 
 CREATE TRIGGER update_ads_updated_at BEFORE UPDATE ON ads
     FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+
+-- Enable Row Level Security (if not already enabled)
+ALTER TABLE ads ENABLE ROW LEVEL SECURITY;
+
+-- Create policy to allow anonymous users to read active ads
+CREATE POLICY "Allow public read access to active ads"
+ON ads FOR SELECT
+USING (active = true);
 ```
 
 ## Features Implemented
@@ -106,8 +114,10 @@ CREATE TRIGGER update_ads_updated_at BEFORE UPDATE ON ads
    - Multiple articles can be trending
 
 4. **Add Ads**:
-   - Edit `src/components/NewspaperSidebar.tsx`
-   - Replace the ad space placeholder with your ad HTML/images
+   - Go to Admin Panel > Ads section
+   - Create ads with image, link, position, and page/section targeting
+   - Ads can be targeted to specific pages (home, news, politics, etc.) or set to "All Pages"
+   - See `ADD_PAGE_FIELD_TO_ADS.sql` for database setup
 
 ## Reverting to Old Layout
 

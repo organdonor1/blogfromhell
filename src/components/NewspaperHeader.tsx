@@ -1,11 +1,10 @@
 import Link from 'next/link';
 
 const sections = [
-  { name: 'News', slug: 'news' },
-  { name: 'Local', slug: 'local' },
   { name: 'Politics', slug: 'politics' },
-  { name: 'Sports', slug: 'sports' },
   { name: 'Entertainment', slug: 'entertainment' },
+  { name: 'Local', slug: 'local' },
+  { name: 'Sports', slug: 'sports' },
   { name: 'Opinion', slug: 'opinion' },
 ];
 

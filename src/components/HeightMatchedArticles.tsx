@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from 'react';
 import FeaturedArticle from './FeaturedArticle';
 import SecondaryArticleCard from './SecondaryArticleCard';
+import NewspaperSidebar from './NewspaperSidebar';
 
 interface Post {
   id: string;
@@ -17,9 +18,11 @@ interface Post {
 interface HeightMatchedArticlesProps {
   featuredPost: Post;
   secondaryPosts: Post[];
+  trendingPosts?: Post[];
+  currentPage?: string | null;
 }
 
-export default function HeightMatchedArticles({ featuredPost, secondaryPosts }: HeightMatchedArticlesProps) {
+export default function HeightMatchedArticles({ featuredPost, secondaryPosts, trendingPosts = [], currentPage = null }: HeightMatchedArticlesProps) {
   const featuredRef = useRef<HTMLDivElement>(null);
   const secondaryRef = useRef<HTMLDivElement>(null);
   const [matchedHeight, setMatchedHeight] = useState<number | null>(null);
@@ -50,16 +53,13 @@ export default function HeightMatchedArticles({ featuredPost, secondaryPosts }: 
         }
 
         // Measure the actual content height of the featured article
-        // Get the article element inside the container
         const featuredArticle = featuredRef.current.querySelector('article') as HTMLElement;
         if (!featuredArticle) return;
 
-        // Get the actual height including padding but excluding margin
         const featuredHeight = featuredArticle.offsetHeight;
         
         if (featuredHeight > 0) {
           setMatchedHeight(featuredHeight);
-          // Also directly set it to ensure it applies
           secondaryRef.current.style.height = `${featuredHeight}px`;
           secondaryRef.current.style.maxHeight = `${featuredHeight}px`;
         }
@@ -91,7 +91,6 @@ export default function HeightMatchedArticles({ featuredPost, secondaryPosts }: 
           }
         });
 
-        // Fallback timeout
         setTimeout(updateHeight, 1000);
       } else {
         updateHeight();
@@ -135,7 +134,7 @@ export default function HeightMatchedArticles({ featuredPost, secondaryPosts }: 
   }, [isMounted, featuredPost, secondaryPosts]);
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-12">
+    <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-16">
       {/* Main Content - Featured Article */}
       <div className="lg:col-span-2" ref={featuredRef}>
         <FeaturedArticle post={featuredPost} />
@@ -146,10 +145,8 @@ export default function HeightMatchedArticles({ featuredPost, secondaryPosts }: 
         className="flex flex-col" 
         ref={secondaryRef}
         style={{ 
-          minHeight: 0, 
-          overflow: 'hidden',
+          minHeight: 0,
           ...(matchedHeight && typeof window !== 'undefined' && window.innerWidth >= 1024 ? { 
-            height: `${matchedHeight}px`, 
             maxHeight: `${matchedHeight}px` 
           } : {})
         }}
@@ -157,11 +154,7 @@ export default function HeightMatchedArticles({ featuredPost, secondaryPosts }: 
         <div 
           className="flex flex-col" 
           style={{ 
-            gap: '1rem', 
-            minHeight: 0, 
-            height: '100%',
-            maxHeight: '100%',
-            overflow: 'hidden'
+            gap: '0.75rem'
           }}
         >
           {secondaryPosts.slice(0, 3).map((post, index) => {
@@ -170,20 +163,16 @@ export default function HeightMatchedArticles({ featuredPost, secondaryPosts }: 
               <div 
                 key={post.id} 
                 className="flex flex-col"
-                style={{ 
-                  flex: index < 2 ? '1 1 0%' : '0 1 auto', 
-                  minHeight: 0,
-                  maxHeight: index < 2 ? '100%' : 'none',
-                  overflow: 'hidden',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  height: index < 2 ? '100%' : 'auto'
-                }}
               >
                 <SecondaryArticleCard post={post} />
               </div>
             );
           })}
+        </div>
+        
+        {/* Ad space under the 3 articles */}
+        <div className="mt-4 flex-shrink-0">
+          <NewspaperSidebar trendingPosts={[]} currentPage={currentPage} />
         </div>
       </div>
     </div>

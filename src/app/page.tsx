@@ -5,6 +5,7 @@ import NewspaperHeader from '../components/NewspaperHeader';
 import ArticleList from '../components/ArticleList';
 import NewspaperSidebar from '../components/NewspaperSidebar';
 import HeightMatchedArticles from '../components/HeightMatchedArticles';
+import FeaturedArticle from '../components/FeaturedArticle';
 import Footer from '../components/footer';
 import Pagination from '../components/Pagination';
 import { supabase } from '../integrations/supabase/client';
@@ -90,17 +91,25 @@ function IndexContent() {
 
   // Pagination logic
   const startIndex = (currentPage - 1) * POSTS_PER_PAGE;
-  const totalPages = Math.ceil(posts.length / POSTS_PER_PAGE);
 
   // If no featured post, use the first post
   const displayFeatured = currentPage === 1 ? (featuredPost || (posts.length > 0 ? posts[0] : null)) : null;
-  const postsToPaginate = featuredPost && currentPage === 1 
-    ? posts.filter(p => p.id !== featuredPost.id)
+  // Get secondary posts from all posts, excluding featured
+  const secondaryPosts = displayFeatured 
+    ? posts.filter(p => p && p.id && displayFeatured && p.id !== displayFeatured.id).slice(0, 3)
+    : [];
+  // Get secondary post IDs to exclude from main list
+  const secondaryPostIds = secondaryPosts.map(p => p.id);
+  // Filter posts for pagination: exclude featured and secondary posts
+  const postsToPaginate = currentPage === 1
+    ? posts.filter(p => {
+        if (displayFeatured && p.id === displayFeatured.id) return false;
+        if (secondaryPostIds.includes(p.id)) return false;
+        return true;
+      })
     : posts.filter(p => featuredPost ? p.id !== featuredPost.id : true);
   const displayPosts = postsToPaginate.slice(startIndex, startIndex + POSTS_PER_PAGE);
-  const secondaryPosts = displayFeatured 
-    ? posts.filter(p => p.id !== displayFeatured.id).slice(0, 3)
-    : [];
+  const totalPages = Math.ceil(postsToPaginate.length / POSTS_PER_PAGE);
 
   return (
     <div className="min-h-screen bg-white">
@@ -112,30 +121,42 @@ function IndexContent() {
         ) : (
           <>
             {displayFeatured && secondaryPosts && secondaryPosts.length > 0 ? (
-              <HeightMatchedArticles 
-                featuredPost={displayFeatured} 
-                secondaryPosts={secondaryPosts}
-              />
-            ) : displayFeatured ? (
-              <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-12">
-                <div className="lg:col-span-2">
-                  <ArticleList posts={displayPosts} />
-                </div>
-                <div>
-                  <NewspaperSidebar trendingPosts={trendingPosts} />
-                </div>
-              </div>
-            ) : null}
-
-            {displayFeatured ? (
-              <div>
-                <ArticleList posts={displayPosts} />
-                <Pagination
-                  currentPage={currentPage}
-                  totalPages={totalPages}
-                  basePath="/"
+              <>
+                <HeightMatchedArticles 
+                  featuredPost={displayFeatured} 
+                  secondaryPosts={secondaryPosts}
+                  currentPage="home"
                 />
-              </div>
+                {/* Articles below featured */}
+                <div className="mt-8">
+                  <ArticleList posts={displayPosts} />
+                  <Pagination
+                    currentPage={currentPage}
+                    totalPages={totalPages}
+                    basePath="/"
+                  />
+                </div>
+              </>
+            ) : displayFeatured ? (
+              <>
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-12">
+                  <div className="lg:col-span-2">
+                    <FeaturedArticle post={displayFeatured} />
+                  </div>
+                  <div>
+                    <NewspaperSidebar trendingPosts={trendingPosts} currentPage="home" />
+                  </div>
+                </div>
+                {/* Articles below featured */}
+                <div className="mb-12">
+                  <ArticleList posts={displayPosts} />
+                  <Pagination
+                    currentPage={currentPage}
+                    totalPages={totalPages}
+                    basePath="/"
+                  />
+                </div>
+              </>
             ) : (
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                 <div className="lg:col-span-2">
@@ -147,7 +168,7 @@ function IndexContent() {
                   />
                 </div>
                 <div>
-                  <NewspaperSidebar trendingPosts={trendingPosts} />
+                  <NewspaperSidebar trendingPosts={trendingPosts} currentPage="home" />
                 </div>
               </div>
             )}

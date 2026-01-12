@@ -42,6 +42,7 @@ interface Ad {
   link_url: string | null;
   position: string;
   active: boolean;
+  page: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -84,6 +85,7 @@ export default function Admin() {
     link_url: '',
     position: 'sidebar',
     active: true,
+    page: '',
   });
   const [adImageFile, setAdImageFile] = useState<File | null>(null);
   const [adImagePreview, setAdImagePreview] = useState<string | null>(null);
@@ -533,6 +535,7 @@ export default function Admin() {
         ...adFormData,
         image_url: imageUrl,
         link_url: adFormData.link_url || null,
+        page: adFormData.page && adFormData.page.trim() ? adFormData.page.trim() : null,
       };
 
       if (editingAd) {
@@ -628,6 +631,7 @@ export default function Admin() {
       link_url: ad.link_url || '',
       position: ad.position,
       active: ad.active,
+      page: ad.page || '',
     });
     setAdImageFile(null);
     setAdImagePreview(ad.image_url);
@@ -641,6 +645,7 @@ export default function Admin() {
       link_url: '',
       position: 'sidebar',
       active: true,
+      page: '',
     });
     setAdImageFile(null);
     setAdImagePreview(null);
@@ -824,6 +829,25 @@ export default function Admin() {
                     </Select>
                   </div>
 
+                  <div>
+                    <Label>Page/Section</Label>
+                    <Select value={adFormData.page || 'all'} onValueChange={(v) => setAdFormData({ ...adFormData, page: v === 'all' ? '' : v })}>
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">All Pages (default)</SelectItem>
+                        <SelectItem value="home">Home</SelectItem>
+                        <SelectItem value="local">Local</SelectItem>
+                        <SelectItem value="politics">Politics</SelectItem>
+                        <SelectItem value="sports">Sports</SelectItem>
+                        <SelectItem value="entertainment">Entertainment</SelectItem>
+                        <SelectItem value="opinion">Opinion</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <p className="text-xs text-gray-500 mt-1">Select which page this ad should appear on. "All Pages" means it will show everywhere.</p>
+                  </div>
+
                   <div className="flex items-center gap-2">
                     <Switch
                       checked={adFormData.active}
@@ -959,14 +983,13 @@ export default function Admin() {
 
                 <div>
                   <Label>Section *</Label>
-                  <p className="text-xs text-muted-foreground mb-2">Required to appear in section pages (News, Local, Politics, Sports, Entertainment, Opinion)</p>
+                  <p className="text-xs text-muted-foreground mb-2">Required to appear in section pages (Local, Politics, Sports, Entertainment, Opinion)</p>
                   <Select value={formData.section} onValueChange={(v) => setFormData({ ...formData, section: v })}>
                     <SelectTrigger>
                       <SelectValue placeholder="Select a section" />
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="none">None (won't appear in sections)</SelectItem>
-                      <SelectItem value="News">News</SelectItem>
                       <SelectItem value="Local">Local</SelectItem>
                       <SelectItem value="Politics">Politics</SelectItem>
                       <SelectItem value="Sports">Sports</SelectItem>
