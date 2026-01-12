@@ -132,10 +132,11 @@ function IndexContent() {
   const secondaryPostIds = secondaryPosts.map(p => p.id);
   // Get trending post IDs to exclude from main list (they show in sidebar)
   const trendingPostIds = trendingPosts.map(p => p.id);
-  // Filter posts for pagination: exclude secondary posts and trending posts (but keep featured in the list)
-  // All articles show in the main list by default, featured/trending just control placement
+  // Filter posts for pagination: exclude featured, secondary posts, and trending posts
   const postsToPaginate = currentPage === 1
     ? posts.filter(p => {
+        // Exclude featured post (it's shown at the top)
+        if (displayFeatured && p.id === displayFeatured.id) return false;
         // Exclude secondary posts (the 3 articles shown in the right column)
         if (secondaryPostIds.includes(p.id)) return false;
         // Exclude trending posts (they show in sidebar)
@@ -144,7 +145,7 @@ function IndexContent() {
       })
     : posts.filter(p => {
         // On page 2+, exclude featured post if it exists
-        return featuredPost ? p.id !== featuredPost.id : true;
+        return displayFeatured ? p.id !== displayFeatured.id : true;
       });
   const displayPosts = postsToPaginate.slice(startIndex, startIndex + POSTS_PER_PAGE);
   const totalPages = Math.ceil(postsToPaginate.length / POSTS_PER_PAGE);
