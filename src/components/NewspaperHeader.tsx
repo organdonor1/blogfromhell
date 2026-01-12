@@ -38,10 +38,10 @@ export default function NewspaperHeader() {
           <div className="text-center">
             <Link href="/" className="block group">
               <h1 className="text-6xl md:text-7xl font-black text-black tracking-tight mb-2 group-hover:opacity-80 transition-opacity" style={{ fontFamily: 'Georgia, serif' }}>
-                FROM HELL
+                THE HELLMOUTH
               </h1>
               <p className="text-sm font-semibold text-gray-700 uppercase tracking-widest">
-                America&apos;s Finest News Source
+                America&apos;s News Source
               </p>
             </Link>
           </div>
